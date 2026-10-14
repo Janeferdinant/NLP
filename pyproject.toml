@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spam-classifier"
+version = "0.2.0"
+description = "SMS spam classification with TF-IDF features: Naive Bayes, logistic regression and a linear SVM, with error analysis."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Jane Rose Ferdinant" }]
+# Minimum versions only. The exact versions used for the verified runs are pinned in requirements.txt.
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scikit-learn>=1.5",
+    "joblib>=1.4",
+    "matplotlib>=3.8",
+]
+
+[project.scripts]
+spam-classifier = "spam_classifier.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["archive", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# The report writer builds long Markdown strings and tables.
+"src/spam_classifier/report.py" = ["E501"]

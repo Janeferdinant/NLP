@@ -1,39 +1,27 @@
-"""Export the trained TF-IDF vectorizer and Naive Bayes model to JSON for the in-browser demo.
+"""Export the Naive Bayes baseline (TF-IDF vectorizer and classifier) to JSON for the in-browser demo.
 
-Run this after executing spam_ham.ipynb. The notebook's last cell saves
-model/vectorizer.joblib and model/nb.joblib.
+The demo runs the notebook's model: word TF-IDF with English stop words and Multinomial Naive Bayes, trained
+on the notebook's 70% split. This script trains that model with the spam_classifier package and writes:
 
     python scripts/export_model.py
 
-Writes:
   docs/model.json     vocabulary, idf, stop words, vectorizer params, classes,
                       class_log_prior and feature_log_prob
   docs/fixtures.json  the 1,672 held-out test messages with scikit-learn's
                       predictions; docs/parity.test.mjs checks the JavaScript
                       classifier against them
 """
+
 import json
 from pathlib import Path
 
-import joblib
-import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
+
+from spam_classifier.data import load_dataset, split_dataset
+from spam_classifier.models import build_pipeline
 
 ROOT = Path(__file__).resolve().parent.parent
-MODEL_DIR = ROOT / "model"
 DOCS = ROOT / "docs"
-
-
-def load_test_split():
-    """Load spam.csv and split it exactly as spam_ham.ipynb does (cells 1, 12 and 14)."""
-    df = pd.read_csv(ROOT / "spam.csv", encoding="ISO-8859-1")
-    df = df.rename(columns={"v1": "class_label", "v2": "message"})[["class_label", "message"]]
-    df["class_label"] = df["class_label"].apply(lambda x: 1 if x == "spam" else 0)
-    _, x_test, _, y_test = train_test_split(
-        df["message"], df["class_label"], test_size=0.3, random_state=0
-    )
-    return x_test, y_test
 
 
 def export_model(vec, clf):
@@ -50,8 +38,9 @@ def export_model(vec, clf):
 
 
 def main():
-    vec = joblib.load(MODEL_DIR / "vectorizer.joblib")
-    clf = joblib.load(MODEL_DIR / "nb.joblib")
+    x_train, x_test, y_train, y_test = split_dataset(load_dataset())
+    pipe = build_pipeline("nb", "word").fit(x_train.tolist(), y_train)
+    vec, clf = pipe.named_steps["tfidf"], pipe.named_steps["clf"]
 
     DOCS.mkdir(exist_ok=True)
     model_path = DOCS / "model.json"
@@ -59,12 +48,11 @@ def main():
         json.dump(export_model(vec, clf), f, separators=(",", ":"))
         f.write("\n")
 
-    x_test, y_test = load_test_split()
     pred = clf.predict(vec.transform(x_test))
     fixtures_path = DOCS / "fixtures.json"
     rows = [
         json.dumps({"text": text, "label": int(label), "sklearn": int(p)})
-        for text, label, p in zip(x_test, y_test, pred)
+        for text, label, p in zip(x_test, y_test, pred, strict=False)
     ]
     with open(fixtures_path, "w", encoding="utf-8", newline="\n") as f:
         f.write("[\n" + ",\n".join(rows) + "\n]\n")
