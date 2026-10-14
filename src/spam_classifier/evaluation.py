@@ -5,6 +5,7 @@ Naive Bayes and logistic regression, a signed margin for the linear SVM. A messa
 ``score >= threshold``. When nothing is flagged, precision is reported as 1.0 (no false alarms), which is
 the convention of ``sklearn.metrics.precision_recall_curve``.
 """
+
 import re
 
 import numpy as np
@@ -114,10 +115,7 @@ def top_terms(pipeline, n=20):
     """
     names = pipeline.named_steps["tfidf"].get_feature_names_out()
     clf = pipeline.named_steps["clf"]
-    if hasattr(clf, "feature_log_prob_"):
-        weights = clf.feature_log_prob_[1] - clf.feature_log_prob_[0]
-    else:
-        weights = clf.coef_[0]
+    weights = clf.feature_log_prob_[1] - clf.feature_log_prob_[0] if hasattr(clf, "feature_log_prob_") else clf.coef_[0]
     order = np.argsort(weights)
     spam = [(str(names[i]), float(weights[i])) for i in order[::-1][:n]]
     ham = [(str(names[i]), float(weights[i])) for i in order[:n]]

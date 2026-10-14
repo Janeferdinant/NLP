@@ -10,9 +10,7 @@ def test_model_names():
     assert MODEL_NAMES == ("nb", "logreg", "svm")
 
 
-@pytest.mark.parametrize(
-    "name, cls", [("nb", MultinomialNB), ("logreg", LogisticRegression), ("svm", LinearSVC)]
-)
+@pytest.mark.parametrize("name, cls", [("nb", MultinomialNB), ("logreg", LogisticRegression), ("svm", LinearSVC)])
 def test_pipeline_has_a_vectorizer_and_the_right_classifier(name, cls):
     pipe = build_pipeline(name, "word")
     assert list(pipe.named_steps) == ["tfidf", "clf"]

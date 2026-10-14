@@ -11,6 +11,7 @@ on the notebook's 70% split. This script trains that model with the spam_classif
                       predictions; docs/parity.test.mjs checks the JavaScript
                       classifier against them
 """
+
 import json
 from pathlib import Path
 
@@ -51,7 +52,7 @@ def main():
     fixtures_path = DOCS / "fixtures.json"
     rows = [
         json.dumps({"text": text, "label": int(label), "sklearn": int(p)})
-        for text, label, p in zip(x_test, y_test, pred)
+        for text, label, p in zip(x_test, y_test, pred, strict=False)
     ]
     with open(fixtures_path, "w", encoding="utf-8", newline="\n") as f:
         f.write("[\n" + ",\n".join(rows) + "\n]\n")

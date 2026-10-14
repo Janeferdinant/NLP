@@ -1,4 +1,5 @@
 """Load the UCI SMS Spam Collection and split it exactly as the notebook does."""
+
 from pathlib import Path
 
 import pandas as pd

@@ -1,0 +1,884 @@
+{
+ "status": "Verified (run 2026-10-14)",
+ "python": "3.11.9",
+ "scikit_learn": "1.9.1",
+ "best_by_training_cv": "svm/word+char",
+ "experiments": {
+  "nb/word": {
+   "key": "nb/word",
+   "label": "Multinomial Naive Bayes, word TF-IDF",
+   "algorithm": "nb",
+   "features": "word",
+   "primary": true,
+   "n_features": 6839,
+   "fit_seconds": 0.07068629999412224,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 60,
+    "tp": 178,
+    "accuracy": 0.9641148325358851,
+    "precision": 1.0,
+    "recall": 0.7478991596638656,
+    "f1": 0.8557692307692307
+   },
+   "accuracy_ci95": [
+    0.9551435406698564,
+    0.9730861244019139
+   ],
+   "average_precision": 0.9734115300253502,
+   "cv": {
+    "accuracy": [
+     0.9658974358974358,
+     0.004102564102564088
+    ],
+    "precision": [
+     1.0,
+     0.0
+    ],
+    "recall": [
+     0.7385944476800621,
+     0.032427747156881105
+    ],
+    "f1": [
+     0.8492402449046708,
+     0.021728508891881704
+    ]
+   }
+  },
+  "logreg/word": {
+   "key": "logreg/word",
+   "label": "Logistic regression, word TF-IDF",
+   "algorithm": "logreg",
+   "features": "word",
+   "primary": true,
+   "n_features": 6839,
+   "fit_seconds": 0.06328279999434017,
+   "test": {
+    "tn": 1431,
+    "fp": 3,
+    "fn": 76,
+    "tp": 162,
+    "accuracy": 0.9527511961722488,
+    "precision": 0.9818181818181818,
+    "recall": 0.680672268907563,
+    "f1": 0.8039702233250621
+   },
+   "accuracy_ci95": [
+    0.9419856459330144,
+    0.9635167464114832
+   ],
+   "average_precision": 0.9772030795667228,
+   "cv": {
+    "accuracy": [
+     0.9525641025641025,
+     0.00512820512820516
+    ],
+    "precision": [
+     0.9856016203557187,
+     0.01248170661135412
+    ],
+    "recall": [
+     0.6463987575228111,
+     0.04267671340525055
+    ],
+    "f1": [
+     0.779758484042697,
+     0.029572012869272375
+    ]
+   }
+  },
+  "svm/word": {
+   "key": "svm/word",
+   "label": "Linear SVM, word TF-IDF",
+   "algorithm": "svm",
+   "features": "word",
+   "primary": true,
+   "n_features": 6839,
+   "fit_seconds": 0.08866790001047775,
+   "test": {
+    "tn": 1431,
+    "fp": 3,
+    "fn": 20,
+    "tp": 218,
+    "accuracy": 0.986244019138756,
+    "precision": 0.9864253393665159,
+    "recall": 0.9159663865546218,
+    "f1": 0.9498910675381265
+   },
+   "accuracy_ci95": [
+    0.9802482057416267,
+    0.9916267942583732
+   ],
+   "average_precision": 0.9887304395698545,
+   "cv": {
+    "accuracy": [
+     0.9802564102564102,
+     0.004411448854893661
+    ],
+    "precision": [
+     0.9739063126002293,
+     0.008055348041996927
+    ],
+    "recall": [
+     0.8722966414288488,
+     0.036686388112133754
+    ],
+    "f1": [
+     0.9198157021247004,
+     0.01981972032036091
+    ]
+   }
+  },
+  "nb/char": {
+   "key": "nb/char",
+   "label": "Multinomial Naive Bayes, char 2-5 TF-IDF",
+   "algorithm": "nb",
+   "features": "char",
+   "primary": true,
+   "n_features": 33460,
+   "fit_seconds": 0.7997102999943309,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 85,
+    "tp": 153,
+    "accuracy": 0.9491626794258373,
+    "precision": 1.0,
+    "recall": 0.6428571428571429,
+    "f1": 0.782608695652174
+   },
+   "accuracy_ci95": [
+    0.9377840909090909,
+    0.9593450956937798
+   ],
+   "average_precision": 0.956633861632127,
+   "cv": {
+    "accuracy": [
+     0.951025641025641,
+     0.005813222589104972
+    ],
+    "precision": [
+     0.9970588235294118,
+     0.00588235294117645
+    ],
+    "recall": [
+     0.6265773636187149,
+     0.046894408804584474
+    ],
+    "f1": [
+     0.7684537566360807,
+     0.03543348070074752
+    ]
+   }
+  },
+  "logreg/char": {
+   "key": "logreg/char",
+   "label": "Logistic regression, char 2-5 TF-IDF",
+   "algorithm": "logreg",
+   "features": "char",
+   "primary": true,
+   "n_features": 33460,
+   "fit_seconds": 0.5948194999946281,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 50,
+    "tp": 188,
+    "accuracy": 0.9700956937799043,
+    "precision": 1.0,
+    "recall": 0.7899159663865546,
+    "f1": 0.8826291079812207
+   },
+   "accuracy_ci95": [
+    0.9617224880382775,
+    0.9778708133971292
+   ],
+   "average_precision": 0.9959827486010011,
+   "cv": {
+    "accuracy": [
+     0.9738461538461538,
+     0.0034969696658937966
+    ],
+    "precision": [
+     1.0,
+     0.0
+    ],
+    "recall": [
+     0.7996117258784702,
+     0.02669582950925436
+    ],
+    "f1": [
+     0.8884042898229317,
+     0.01650791918547306
+    ]
+   }
+  },
+  "svm/char": {
+   "key": "svm/char",
+   "label": "Linear SVM, char 2-5 TF-IDF",
+   "algorithm": "svm",
+   "features": "char",
+   "primary": true,
+   "n_features": 33460,
+   "fit_seconds": 0.5396774999971967,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 15,
+    "tp": 223,
+    "accuracy": 0.9910287081339713,
+    "precision": 1.0,
+    "recall": 0.9369747899159664,
+    "f1": 0.9674620390455532
+   },
+   "accuracy_ci95": [
+    0.986244019138756,
+    0.9952153110047847
+   ],
+   "average_precision": 0.997750959114831,
+   "cv": {
+    "accuracy": [
+     0.9892307692307692,
+     0.0026399051643556317
+    ],
+    "precision": [
+     0.997872340425532,
+     0.004255319148936155
+    ],
+    "recall": [
+     0.919452533488643,
+     0.019983334053587584
+    ],
+    "f1": [
+     0.9569387604177308,
+     0.011062690705644399
+    ]
+   }
+  },
+  "nb/word+char": {
+   "key": "nb/word+char",
+   "label": "Multinomial Naive Bayes, word + char TF-IDF",
+   "algorithm": "nb",
+   "features": "word+char",
+   "primary": true,
+   "n_features": 40299,
+   "fit_seconds": 0.624543799989624,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 52,
+    "tp": 186,
+    "accuracy": 0.9688995215311005,
+    "precision": 1.0,
+    "recall": 0.7815126050420168,
+    "f1": 0.8773584905660378
+   },
+   "accuracy_ci95": [
+    0.9599282296650717,
+    0.9772727272727273
+   ],
+   "average_precision": 0.9715491578524382,
+   "cv": {
+    "accuracy": [
+     0.9710256410256409,
+     0.003854691379069963
+    ],
+    "precision": [
+     0.9974683544303797,
+     0.005063291139240489
+    ],
+    "recall": [
+     0.7800232964472917,
+     0.027712030120525283
+    ],
+    "f1": [
+     0.8751899729320559,
+     0.018060007211220114
+    ]
+   }
+  },
+  "logreg/word+char": {
+   "key": "logreg/word+char",
+   "label": "Logistic regression, word + char TF-IDF",
+   "algorithm": "logreg",
+   "features": "word+char",
+   "primary": true,
+   "n_features": 40299,
+   "fit_seconds": 0.7808011999877635,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 36,
+    "tp": 202,
+    "accuracy": 0.9784688995215312,
+    "precision": 1.0,
+    "recall": 0.8487394957983193,
+    "f1": 0.9181818181818181
+   },
+   "accuracy_ci95": [
+    0.971276913875598,
+    0.9850478468899522
+   ],
+   "average_precision": 0.9945254210754542,
+   "cv": {
+    "accuracy": [
+     0.9789743589743589,
+     0.003401666451646552
+    ],
+    "precision": [
+     1.0,
+     0.0
+    ],
+    "recall": [
+     0.8389244806833623,
+     0.025865191779767108
+    ],
+    "f1": [
+     0.9121907393566167,
+     0.015430812383911257
+    ]
+   }
+  },
+  "svm/word+char": {
+   "key": "svm/word+char",
+   "label": "Linear SVM, word + char TF-IDF",
+   "algorithm": "svm",
+   "features": "word+char",
+   "primary": true,
+   "n_features": 40299,
+   "fit_seconds": 0.6535320999973919,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 11,
+    "tp": 227,
+    "accuracy": 0.993421052631579,
+    "precision": 1.0,
+    "recall": 0.9537815126050421,
+    "f1": 0.9763440860215054
+   },
+   "accuracy_ci95": [
+    0.9892344497607656,
+    0.9970095693779905
+   ],
+   "average_precision": 0.9971305646195777,
+   "cv": {
+    "accuracy": [
+     0.9892307692307692,
+     0.003098216916306332
+    ],
+    "precision": [
+     0.9958539205155746,
+     0.00507891190334519
+    ],
+    "recall": [
+     0.921432731508445,
+     0.026257394520323513
+    ],
+    "f1": [
+     0.9569543049579574,
+     0.013133376510108692
+    ]
+   }
+  },
+  "nb/word+norm": {
+   "key": "nb/word+norm",
+   "label": "Multinomial Naive Bayes, word TF-IDF, normalised text",
+   "algorithm": "nb",
+   "features": "word",
+   "primary": false,
+   "n_features": 6562,
+   "fit_seconds": 0.07853369999793358,
+   "test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 50,
+    "tp": 188,
+    "accuracy": 0.9700956937799043,
+    "precision": 1.0,
+    "recall": 0.7899159663865546,
+    "f1": 0.8826291079812207
+   },
+   "accuracy_ci95": [
+    0.9617224880382775,
+    0.9778708133971292
+   ],
+   "average_precision": 0.9834070447067077,
+   "cv": {
+    "accuracy": [
+     0.9735897435897435,
+     0.003768445758127953
+    ],
+    "precision": [
+     1.0,
+     0.0
+    ],
+    "recall": [
+     0.7975344593282857,
+     0.02974749962197169
+    ],
+    "f1": [
+     0.8870549179282768,
+     0.018730329695215438
+    ]
+   }
+  },
+  "logreg/word+norm": {
+   "key": "logreg/word+norm",
+   "label": "Logistic regression, word TF-IDF, normalised text",
+   "algorithm": "logreg",
+   "features": "word",
+   "primary": false,
+   "n_features": 6562,
+   "fit_seconds": 0.08879239999805577,
+   "test": {
+    "tn": 1432,
+    "fp": 2,
+    "fn": 60,
+    "tp": 178,
+    "accuracy": 0.9629186602870813,
+    "precision": 0.9888888888888889,
+    "recall": 0.7478991596638656,
+    "f1": 0.8516746411483254
+   },
+   "accuracy_ci95": [
+    0.9533492822966507,
+    0.97190490430622
+   ],
+   "average_precision": 0.9863755971886262,
+   "cv": {
+    "accuracy": [
+     0.9623076923076923,
+     0.0026399051643556317
+    ],
+    "precision": [
+     0.9815852096300397,
+     0.005773494385978563
+    ],
+    "recall": [
+     0.7249271986022132,
+     0.0242694931874578
+    ],
+    "f1": [
+     0.8336532255252909,
+     0.014492203802483875
+    ]
+   }
+  },
+  "svm/word+norm": {
+   "key": "svm/word+norm",
+   "label": "Linear SVM, word TF-IDF, normalised text",
+   "algorithm": "svm",
+   "features": "word",
+   "primary": false,
+   "n_features": 6562,
+   "fit_seconds": 0.0823104000010062,
+   "test": {
+    "tn": 1430,
+    "fp": 4,
+    "fn": 16,
+    "tp": 222,
+    "accuracy": 0.9880382775119617,
+    "precision": 0.9823008849557522,
+    "recall": 0.9327731092436975,
+    "f1": 0.9568965517241379
+   },
+   "accuracy_ci95": [
+    0.9826555023923444,
+    0.992822966507177
+   ],
+   "average_precision": 0.9932098823137666,
+   "cv": {
+    "accuracy": [
+     0.9851282051282052,
+     0.002761622978017734
+    ],
+    "precision": [
+     0.9788906458158906,
+     0.011181643214427925
+    ],
+    "recall": [
+     0.905707629586488,
+     0.01703707291820852
+    ],
+    "f1": [
+     0.9407767850376227,
+     0.011252221055242642
+    ]
+   }
+  },
+  "logreg/word+balanced": {
+   "key": "logreg/word+balanced",
+   "label": "Logistic regression, word TF-IDF, balanced class weights",
+   "algorithm": "logreg",
+   "features": "word",
+   "primary": false,
+   "n_features": 6839,
+   "fit_seconds": 0.06250739999813959,
+   "test": {
+    "tn": 1421,
+    "fp": 13,
+    "fn": 14,
+    "tp": 224,
+    "accuracy": 0.9838516746411483,
+    "precision": 0.9451476793248945,
+    "recall": 0.9411764705882353,
+    "f1": 0.9431578947368421
+   },
+   "accuracy_ci95": [
+    0.9772727272727273,
+    0.9898325358851675
+   ],
+   "average_precision": 0.9789825446167777,
+   "cv": {
+    "accuracy": [
+     0.9782051282051281,
+     0.003343180720616731
+    ],
+    "precision": [
+     0.9226502184631418,
+     0.017515825680003226
+    ],
+    "recall": [
+     0.909629198213939,
+     0.019982070372498113
+    ],
+    "f1": [
+     0.9158851950955522,
+     0.0130601633523233
+    ]
+   }
+  },
+  "svm/word+balanced": {
+   "key": "svm/word+balanced",
+   "label": "Linear SVM, word TF-IDF, balanced class weights",
+   "algorithm": "svm",
+   "features": "word",
+   "primary": false,
+   "n_features": 6839,
+   "fit_seconds": 0.08474069999647327,
+   "test": {
+    "tn": 1427,
+    "fp": 7,
+    "fn": 14,
+    "tp": 224,
+    "accuracy": 0.9874401913875598,
+    "precision": 0.9696969696969697,
+    "recall": 0.9411764705882353,
+    "f1": 0.955223880597015
+   },
+   "accuracy_ci95": [
+    0.9814593301435407,
+    0.9922248803827751
+   ],
+   "average_precision": 0.9871412581216205,
+   "cv": {
+    "accuracy": [
+     0.9823076923076922,
+     0.0029681633084077666
+    ],
+    "precision": [
+     0.9626887547417862,
+     0.012510498142989568
+    ],
+    "recall": [
+     0.8997864492331585,
+     0.03130622483482032
+    ],
+    "f1": [
+     0.9296911570997514,
+     0.01334372791507236
+    ]
+   }
+  }
+ },
+ "thresholds": {
+  "nb/word": {
+   "default_threshold": 0.5,
+   "sweep": [
+    {
+     "tn": 1434,
+     "fp": 0,
+     "fn": 157,
+     "tp": 81,
+     "accuracy": 0.9061004784688995,
+     "precision": 1.0,
+     "recall": 0.3403361344537815,
+     "f1": 0.5078369905956113,
+     "threshold": 0.9
+    },
+    {
+     "tn": 1434,
+     "fp": 0,
+     "fn": 60,
+     "tp": 178,
+     "accuracy": 0.9641148325358851,
+     "precision": 1.0,
+     "recall": 0.7478991596638656,
+     "f1": 0.8557692307692307,
+     "threshold": 0.5
+    },
+    {
+     "tn": 1421,
+     "fp": 13,
+     "fn": 18,
+     "tp": 220,
+     "accuracy": 0.9814593301435407,
+     "precision": 0.944206008583691,
+     "recall": 0.9243697478991597,
+     "f1": 0.9341825902335458,
+     "threshold": 0.2
+    },
+    {
+     "tn": 1328,
+     "fp": 106,
+     "fn": 8,
+     "tp": 230,
+     "accuracy": 0.9318181818181818,
+     "precision": 0.6845238095238095,
+     "recall": 0.9663865546218487,
+     "f1": 0.8013937282229965,
+     "threshold": 0.1
+    },
+    {
+     "tn": 1168,
+     "fp": 266,
+     "fn": 2,
+     "tp": 236,
+     "accuracy": 0.8397129186602871,
+     "precision": 0.4701195219123506,
+     "recall": 0.9915966386554622,
+     "f1": 0.6378378378378379,
+     "threshold": 0.05
+    },
+    {
+     "tn": 547,
+     "fp": 887,
+     "fn": 1,
+     "tp": 237,
+     "accuracy": 0.4688995215311005,
+     "precision": 0.21085409252669038,
+     "recall": 0.9957983193277311,
+     "f1": 0.34801762114537443,
+     "threshold": 0.01
+    },
+    {
+     "tn": 49,
+     "fp": 1385,
+     "fn": 0,
+     "tp": 238,
+     "accuracy": 0.17165071770334928,
+     "precision": 0.14664202094886014,
+     "recall": 1.0,
+     "f1": 0.2557764642665234,
+     "threshold": 0.001
+    }
+   ],
+   "max_recall_without_false_positives_on_test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 53,
+    "tp": 185,
+    "accuracy": 0.9683014354066986,
+    "precision": 1.0,
+    "recall": 0.7773109243697479,
+    "f1": 0.8747044917257684,
+    "threshold": 0.47141702352006626
+   },
+   "chosen_on_training_folds": {
+    "1.0": {
+     "tn": 1433,
+     "fp": 1,
+     "fn": 53,
+     "tp": 185,
+     "accuracy": 0.9677033492822966,
+     "precision": 0.9946236559139785,
+     "recall": 0.7773109243697479,
+     "f1": 0.8726415094339623,
+     "threshold": 0.4581559370996289,
+     "target_precision_on_training_folds": 1.0
+    },
+    "0.99": {
+     "tn": 1432,
+     "fp": 2,
+     "fn": 46,
+     "tp": 192,
+     "accuracy": 0.9712918660287081,
+     "precision": 0.9896907216494846,
+     "recall": 0.8067226890756303,
+     "f1": 0.888888888888889,
+     "threshold": 0.3794643708995208,
+     "target_precision_on_training_folds": 0.99
+    }
+   }
+  },
+  "svm/word+char": {
+   "default_threshold": 0.0,
+   "sweep": [
+    {
+     "tn": 1434,
+     "fp": 0,
+     "fn": 44,
+     "tp": 194,
+     "accuracy": 0.9736842105263158,
+     "precision": 1.0,
+     "recall": 0.8151260504201681,
+     "f1": 0.8981481481481481,
+     "threshold": 0.5
+    },
+    {
+     "tn": 1434,
+     "fp": 0,
+     "fn": 11,
+     "tp": 227,
+     "accuracy": 0.993421052631579,
+     "precision": 1.0,
+     "recall": 0.9537815126050421,
+     "f1": 0.9763440860215054,
+     "threshold": 0.0
+    },
+    {
+     "tn": 1429,
+     "fp": 5,
+     "fn": 7,
+     "tp": 231,
+     "accuracy": 0.992822966507177,
+     "precision": 0.9788135593220338,
+     "recall": 0.9705882352941176,
+     "f1": 0.9746835443037973,
+     "threshold": -0.25
+    },
+    {
+     "tn": 1419,
+     "fp": 15,
+     "fn": 2,
+     "tp": 236,
+     "accuracy": 0.9898325358851675,
+     "precision": 0.9402390438247012,
+     "recall": 0.9915966386554622,
+     "f1": 0.9652351738241309,
+     "threshold": -0.5
+    },
+    {
+     "tn": 1328,
+     "fp": 106,
+     "fn": 1,
+     "tp": 237,
+     "accuracy": 0.9360047846889952,
+     "precision": 0.6909620991253644,
+     "recall": 0.9957983193277311,
+     "f1": 0.8158347676419965,
+     "threshold": -0.75
+    }
+   ],
+   "max_recall_without_false_positives_on_test": {
+    "tn": 1434,
+    "fp": 0,
+    "fn": 9,
+    "tp": 229,
+    "accuracy": 0.9946172248803827,
+    "precision": 1.0,
+    "recall": 0.9621848739495799,
+    "f1": 0.9807280513918629,
+    "threshold": -0.026011727762721204
+   },
+   "chosen_on_training_folds": {
+    "1.0": {
+     "tn": 1434,
+     "fp": 0,
+     "fn": 16,
+     "tp": 222,
+     "accuracy": 0.9904306220095693,
+     "precision": 1.0,
+     "recall": 0.9327731092436975,
+     "f1": 0.9652173913043478,
+     "threshold": 0.10616376595030785,
+     "target_precision_on_training_folds": 1.0
+    },
+    "0.99": {
+     "tn": 1434,
+     "fp": 0,
+     "fn": 9,
+     "tp": 229,
+     "accuracy": 0.9946172248803827,
+     "precision": 1.0,
+     "recall": 0.9621848739495799,
+     "f1": 0.9807280513918629,
+     "threshold": -0.04221215097789344,
+     "target_precision_on_training_folds": 0.99
+    }
+   }
+  }
+ },
+ "error_counts": {
+  "nb/word": {
+   "fn": 60,
+   "fp": 0,
+   "stats": {
+    "missed spam (false negatives)": {
+     "n": 60,
+     "median_chars": 134.5,
+     "pct_url": 13.333333333333334,
+     "pct_phone": 31.666666666666668,
+     "pct_money": 20.0
+    },
+    "caught spam (true positives)": {
+     "n": 178,
+     "median_chars": 149.0,
+     "pct_url": 16.292134831460675,
+     "pct_phone": 61.79775280898876,
+     "pct_money": 37.640449438202246
+    },
+    "flagged ham (false positives)": {
+     "n": 0,
+     "median_chars": null,
+     "pct_url": null,
+     "pct_phone": null,
+     "pct_money": null
+    },
+    "correct ham (true negatives)": {
+     "n": 1434,
+     "median_chars": 53.0,
+     "pct_url": 0.41841004184100417,
+     "pct_phone": 0.0,
+     "pct_money": 0.4881450488145049
+    }
+   }
+  },
+  "svm/word+char": {
+   "fn": 11,
+   "fp": 0,
+   "stats": {
+    "missed spam (false negatives)": {
+     "n": 11,
+     "median_chars": 137.0,
+     "pct_url": 9.090909090909092,
+     "pct_phone": 9.090909090909092,
+     "pct_money": 18.181818181818183
+    },
+    "caught spam (true positives)": {
+     "n": 227,
+     "median_chars": 149.0,
+     "pct_url": 15.859030837004406,
+     "pct_phone": 56.38766519823788,
+     "pct_money": 33.92070484581498
+    },
+    "flagged ham (false positives)": {
+     "n": 0,
+     "median_chars": null,
+     "pct_url": null,
+     "pct_phone": null,
+     "pct_money": null
+    },
+    "correct ham (true negatives)": {
+     "n": 1434,
+     "median_chars": 53.0,
+     "pct_url": 0.41841004184100417,
+     "pct_phone": 0.0,
+     "pct_money": 0.4881450488145049
+    }
+   }
+  }
+ }
+}

@@ -5,6 +5,7 @@ and remove English stop words. ``normalize_text`` is an experiment (``--normaliz
 parts of a message that vary from spam to spam (links, prices, phone numbers) with fixed tokens, so
 that the model can learn "has a link" instead of one specific link.
 """
+
 import re
 
 _URL = re.compile(r"(?:https?://|www\.)\S+")

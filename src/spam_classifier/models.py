@@ -1,4 +1,5 @@
 """The three classifier families, each wrapped with its vectorizer in one scikit-learn pipeline."""
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -7,9 +8,11 @@ from sklearn.svm import LinearSVC
 from .features import build_vectorizer
 
 MODEL_NAMES = ("nb", "logreg", "svm")
-DEFAULT_ALGORITHM = "nb"  # the notebook's model; updated if a model-comparison run changes the recommendation
-DEFAULT_FEATURES = "word"
-DISPLAY_NAMES ={"nb": "Multinomial Naive Bayes", "logreg": "Logistic regression", "svm": "Linear SVM"}
+# The best model of the 2026-10-14 comparison by cross-validated F1 on the training split. The notebook's baseline is
+# `--algorithm nb --features word`.
+DEFAULT_ALGORITHM = "svm"
+DEFAULT_FEATURES = "word+char"
+DISPLAY_NAMES = {"nb": "Multinomial Naive Bayes", "logreg": "Logistic regression", "svm": "Linear SVM"}
 
 
 def build_classifier(name, class_weight=None, **params):

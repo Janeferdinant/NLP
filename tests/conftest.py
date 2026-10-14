@@ -1,4 +1,5 @@
 """Shared fixtures: a tiny synthetic corpus and a tiny CSV in the UCI file format."""
+
 from pathlib import Path
 
 import pytest
@@ -37,7 +38,7 @@ def toy_csv(tmp_path, toy_messages):
     """The toy corpus written in the UCI layout (v1, v2 and three empty columns), ISO-8859-1."""
     texts, labels = toy_messages
     lines = ["v1,v2,,,"]
-    for text, label in zip(texts, labels):
+    for text, label in zip(texts, labels, strict=False):
         lines.append(f'{"spam" if label else "ham"},"{text}",,,')
     path = tmp_path / "toy.csv"
     path.write_bytes("\n".join(lines).encode("ISO-8859-1"))

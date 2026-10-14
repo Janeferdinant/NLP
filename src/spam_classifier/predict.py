@@ -1,4 +1,5 @@
 """Save, load and apply a trained pipeline."""
+
 from pathlib import Path
 from typing import NamedTuple
 

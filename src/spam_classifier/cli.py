@@ -1,4 +1,5 @@
 """Command line: ``python -m spam_classifier train | evaluate | predict``."""
+
 import argparse
 import datetime
 import sys
@@ -24,9 +25,7 @@ def _print_metrics(metrics, n_test, n_spam):
 def _cmd_train(args):
     df = load_dataset(args.data)
     x_train, x_test, y_train, y_test = split_dataset(df)
-    pipe = build_pipeline(
-        args.algorithm, args.features, normalize=args.normalize, class_weight=args.class_weight
-    )
+    pipe = build_pipeline(args.algorithm, args.features, normalize=args.normalize, class_weight=args.class_weight)
     pipe.fit(x_train.tolist(), y_train)
     save_pipeline(pipe, args.output)
     print(f"trained {args.algorithm} on {args.features} features ({len(x_train)} training messages)")
@@ -84,10 +83,14 @@ def build_parser():
     evaluate = sub.add_parser("evaluate", help="evaluate a saved model, or run the full comparison with --compare")
     evaluate.add_argument("--model-path", default=str(DEFAULT_MODEL_PATH))
     evaluate.add_argument("--data", default=str(DEFAULT_DATA_PATH))
-    evaluate.add_argument("--compare", action="store_true", help="compare all models and write the run logs and figures")
+    evaluate.add_argument(
+        "--compare", action="store_true", help="compare all models and write the run logs and figures"
+    )
     evaluate.add_argument("--out-dir", default=str(REPO_ROOT / "docs" / "runs"), help="where --compare writes run logs")
     evaluate.add_argument("--figures-dir", default=str(REPO_ROOT / "docs" / "figures"))
-    evaluate.add_argument("--date", default=datetime.date.today().isoformat(), help="run date used in file names and labels")
+    evaluate.add_argument(
+        "--date", default=datetime.date.today().isoformat(), help="run date used in file names and labels"
+    )
     evaluate.set_defaults(func=_cmd_evaluate)
 
     predict = sub.add_parser("predict", help="classify messages with a saved model")

@@ -29,9 +29,13 @@ testpaths = ["tests"]
 pythonpath = ["src", "."]
 
 [tool.ruff]
-line-length = 110
+line-length = 120
 target-version = "py311"
-extend-exclude = ["archive"]
+extend-exclude = ["archive", "notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# The report writer builds long Markdown strings and tables.
+"src/spam_classifier/report.py" = ["E501"]

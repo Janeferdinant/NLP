@@ -1,4 +1,5 @@
 """The 96.41% Naive Bayes result from the notebook must be reproducible from the package."""
+
 import pytest
 from sklearn.metrics import confusion_matrix
 
