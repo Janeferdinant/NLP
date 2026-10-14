@@ -12,6 +12,14 @@ from .models import DEFAULT_ALGORITHM, DEFAULT_FEATURES, MODEL_NAMES, build_pipe
 from .predict import DEFAULT_MODEL_PATH, load_pipeline, predict_messages, save_pipeline
 
 
+def _display(path):
+    """The path relative to the repository when inside it, so output does not show local directories."""
+    try:
+        return str(Path(path).resolve().relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def _print_metrics(metrics, n_test, n_spam):
     print(f"test set: {n_test} messages ({n_spam} spam)")
     print(f"accuracy {metrics['accuracy']:.6f}")
@@ -29,7 +37,7 @@ def _cmd_train(args):
     pipe.fit(x_train.tolist(), y_train)
     save_pipeline(pipe, args.output)
     print(f"trained {args.algorithm} on {args.features} features ({len(x_train)} training messages)")
-    print(f"saved {args.output}")
+    print(f"saved {_display(args.output)}")
     metrics = compute_metrics(y_test, pipe.predict(x_test.tolist()))
     _print_metrics(metrics, len(x_test), int(y_test.sum()))
     return 0
