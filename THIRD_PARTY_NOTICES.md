@@ -16,7 +16,7 @@ Suggested citation (from the UCI page): Almeida, T. & Hidalgo, J. (2011). SMS Sp
 
 The collection combines messages from several public sources (Grumbletext, the NUS SMS Corpus, a PhD thesis corpus and the SMS Spam Corpus v.0.1 Big); see the UCI page for details. The messages are public research data and contain phone numbers and shortcodes of the kind that appear in spam.
 
-`docs/model.json` and `docs/fixtures.json` are derived from this dataset (a trained model's parameters, and held-out messages with predictions), so they are shared under the same attribution requirement (CC BY 4.0).
+`docs/model.json`, `docs/model-svm.json`, `docs/fixtures.json` and `docs/fixtures-analyzer.json` are derived from this dataset (trained models' parameters, held-out messages with predictions, and character n-grams of messages), so they are shared under the same attribution requirement (CC BY 4.0). The error analysis in `docs/runs/` quotes dataset messages unchanged.
 
 ## Introductory paper for the dataset (cited, not included)
 

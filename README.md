@@ -10,13 +10,13 @@
 
 ## Overview
 
-A small natural-language-processing project that decides whether a text message is spam. It started as one notebook (TF-IDF features and Multinomial Naive Bayes, 96.41% accuracy) and is now a Python package with a command-line tool, tests, a model comparison, an error analysis and an in-browser demo. On the same held-out messages, a linear SVM on word and character TF-IDF features misses 11 of 238 spam messages where the notebook's model missed 60, with no ham message flagged by either (run 2026-10-14, see [Results](#results)).
+A small natural-language-processing project that decides whether a text message is spam. It started as one notebook (TF-IDF features and Multinomial Naive Bayes, 96.41% accuracy) and is now a Python package with a command-line tool, tests, a model comparison, an error analysis and an in-browser demo. On the same held-out messages, a linear SVM on word and character TF-IDF features misses 11 of 238 spam messages where the notebook's model missed 60, with no ham message flagged by either (run 2026-10-14, see [Results](#results)). The browser demo runs that SVM, and the notebook's Naive Bayes model can be selected next to it.
 
 The banner image is decorative artwork from the repository's earlier life. It was not produced by any model here.
 
 ## Demo
 
-A browser demo runs the **Naive Bayes baseline** from the notebook, entirely client-side: [janeferdinant.github.io/NLP](https://janeferdinant.github.io/NLP/). It shows the prediction for any message you type, one spam and one ham example, and the words that pushed the decision. It is not the best model of this repository (see [Limitations](#limitations)); the best model needs character n-gram features that the demo's JavaScript does not implement. To run it locally:
+A browser demo runs both models entirely client-side: [janeferdinant.github.io/NLP](https://janeferdinant.github.io/NLP/). It opens with the **linear SVM on word and character TF-IDF** (the best model of this repository); a selector switches to the notebook's **Naive Bayes** baseline, which is only downloaded when chosen. It shows the prediction for any message you type, one spam and one ham example, and which pieces of the message pushed the decision, with a "How it works" panel for each model. Loading cost, gzipped (Verified (run 2026-10-14), `gzip -9`): the SVM model file 220 KB, the Naive Bayes file 115 KB (only if chosen), the page and its two scripts about 12 KB. To run it locally:
 
 ```bash
 python -m http.server -d docs
@@ -24,7 +24,7 @@ python -m http.server -d docs
 
 Then open http://localhost:8000. (On Windows, if the page stays on "Loading the model", your Python may serve `.mjs` files as plain text; use `npx serve docs` instead.)
 
-![The demo page on a phone-sized screen, after classifying the spam example](docs/demo-screenshot.png)
+![The demo page on a phone-sized screen, after classifying the spam example with the linear SVM](docs/demo-screenshot.png)
 
 The page does not show an accuracy figure. The measured results are below.
 
@@ -51,7 +51,7 @@ flowchart LR
 3. **Models.** `spam_classifier.models` wraps each of Multinomial Naive Bayes, logistic regression and a linear SVM (scikit-learn defaults, nothing tuned) with its vectorizer in one pipeline.
 4. **Evaluate.** `spam_classifier.evaluation` computes metrics, a bootstrap interval for accuracy, 5-fold cross-validation, precision-recall curves, threshold sweeps, the strongest terms and the error lists. The best model is picked by cross-validated F1 on the **training** split only; the test split is used once per model to report.
 5. **Use.** `python -m spam_classifier train | evaluate | predict`, with the saved model in `model/` (git-ignored).
-6. **Demo.** `scripts/export_model.py` trains the Naive Bayes baseline and exports it to `docs/model.json`; `docs/predict.mjs` re-implements it in JavaScript and `docs/parity.test.mjs` checks that it matches scikit-learn on all 1,672 test messages.
+6. **Demo.** `scripts/export_model.py` trains both models and exports them to `docs/model.json` (Naive Bayes) and `docs/model-svm.json` (SVM: integer document frequencies for the idf, coefficients rounded to 6 decimals). `docs/predict.mjs` and `docs/svm.mjs` re-implement the two pipelines in JavaScript, including scikit-learn's `char_wb` character n-grams, and `docs/parity.test.mjs` and `docs/svm.test.mjs` check that they predict exactly what scikit-learn predicts on all 1,672 test messages.
 
 ## Data
 
@@ -60,7 +60,7 @@ flowchart LR
 - **Size:** `data/spam.csv` has 5,572 messages (4,825 ham, 747 spam). The UCI release lists 5,574, so this copy is slightly smaller.
 - **Split:** 3,900 training and 1,672 test messages (1,434 ham, 238 spam).
 - **Encoding:** the file is not valid UTF-8 and is read as ISO-8859-1, so characters such as the pound sign appear as artefacts (for example `å£`).
-- **Privacy:** the messages are public research data. They include phone numbers and shortcodes typical of spam. The error analysis quotes messages from this file, replaces digit runs of 7 or more digits by `[number]` and cuts each message at 160 characters.
+- **Privacy:** the messages are public research data. They include phone numbers, shortcodes and first names typical of the corpus. The error analysis quotes messages from this file exactly as they appear in the dataset, in full and unmasked.
 
 ## Results
 
@@ -87,7 +87,9 @@ Other numbers from the same run:
 | Linear SVM, word, with text normalisation | 98.80% accuracy, recall 0.9328, 4 false positives | Verified (run 2026-10-14) |
 | Naive Bayes, word, with text normalisation | 97.01% accuracy, recall 0.7899, 0 false positives | Verified (run 2026-10-14) |
 | Logistic regression, word, balanced class weights | 98.39% accuracy, recall 0.9412, 13 false positives | Verified (run 2026-10-14) |
-| JavaScript demo vs scikit-learn Naive Bayes | 0 mismatches in 1,672 (unchanged demo) | Verified (run 2026-10-14) |
+| JavaScript demo vs scikit-learn, Naive Bayes | 0 mismatches in 1,672 (`node --test docs/parity.test.mjs`) | Verified (run 2026-10-14) |
+| JavaScript demo vs scikit-learn, linear SVM | 0 mismatches in 1,672 predictions; largest difference in the decision value 2.1e-6 (smallest margin on the test messages: 0.0009) (`node --test docs/svm.test.mjs`) | Verified (run 2026-10-14) |
+| JavaScript `char_wb` n-grams vs scikit-learn | identical on 366 test inputs: 26 hand-picked awkward ones (white space, accents, emoji, empty and one-letter messages), 300 seeded random strings and 40 real messages | Verified (run 2026-10-14) |
 
 What the comparison shows (all from the run above):
 
@@ -113,7 +115,7 @@ Lowering the threshold to 0.2 raises recall from 0.75 to 0.92 but flags 13 norma
 
 ### Error analysis
 
-Full lists of the false negatives and false positives, with scores, are in [`docs/runs/2026-10-14-error-analysis.md`](docs/runs/2026-10-14-error-analysis.md) (**Verified (run 2026-10-14)**; digits masked, messages shortened).
+Full lists of the false negatives and false positives, with scores, are in [`docs/runs/2026-10-14-error-analysis.md`](docs/runs/2026-10-14-error-analysis.md) (**Verified (run 2026-10-14)**; messages are quoted in full and unmasked, exactly as in the dataset).
 
 - **Notebook's Naive Bayes:** 0 false positives and 60 false negatives. The missed spam is shorter (median 134 characters) than the spam it catches (149), and only 32% of it contains a phone-style number against 62% of the caught spam. Many misses are adult-chat lines, "call this number" notices and premium-rate offers (see the list).
 - **Best model (SVM, word + char):** 0 false positives and 11 false negatives. Several look like ordinary messages (for example "Latest News! Police station toilet stolen, cops have nothing to go on!" or "Sorry I missed your call let's talk when you have the time", which the dataset labels spam), so some residual errors may be label noise or lures that cannot be recognised from the text alone.
@@ -144,18 +146,18 @@ python -m spam_classifier predict "WINNER!! Claim your free prize now, call 0800
 python -m spam_classifier evaluate --compare --out-dir local-runs --figures-dir local-runs
 jupyter nbconvert --to notebook --execute notebooks/spam_ham.ipynb --output-dir notebooks/executed
 python scripts/export_model.py
-node --test docs/parity.test.mjs
+node --test docs/parity.test.mjs docs/svm.test.mjs
 ```
 
 Expected output, from a fresh clone on 2026-10-14:
 
-- `pytest`: `60 passed`. `ruff check .`: `All checks passed!`.
+- `pytest`: `69 passed`. `ruff check .`: `All checks passed!`.
 - The first `train` reproduces the notebook: `accuracy 0.964115` and `confusion matrix [[TN, FP], [FN, TP]]: [[1434, 0], [60, 178]]`. The second `train` (no options) trains the best model, the linear SVM on word + char features, and saves it to `model/spam_classifier.joblib`, overwriting the first.
 - `evaluate` prints that model's test metrics: `accuracy 0.993421`, 11 false negatives.
 - `predict` prints one line per message (label, score, text); the SVM score is a margin, positive for spam.
 - `evaluate --compare` takes about a minute and writes the run logs and figures to `local-runs/` (git-ignored), so it does not touch the committed logs in `docs/runs/`. Without `--out-dir` and `--figures-dir` it writes dated files to `docs/runs/` and `docs/figures/`.
 - The notebook run takes about 15 seconds and prints `classifier accuracy 96.41%`; the executed copy goes to `notebooks/executed/` (git-ignored), leaving the committed notebook and its saved outputs unchanged. To open the notebook interactively, run `jupyter lab` or use the Colab badge above.
-- `export_model.py` prints `vocabulary size: 6839` and the baseline metrics and rewrites `docs/model.json` and `docs/fixtures.json` byte for byte; the test ends with `# pass 2` and `# fail 0`.
+- `export_model.py` prints `Naive Bayes vocabulary size: 6839`, `SVM features: 40299` and both models' metrics, rewrites `docs/model.json` byte for byte, and rewrites `docs/model-svm.json`, `docs/fixtures.json` and `docs/fixtures-analyzer.json` with the same content; the tests end with `# pass 12` and `# fail 0`.
 
 Other options: `python -m spam_classifier train --algorithm logreg --features char --normalize`, `--class-weight balanced` (logistic regression and SVM), `predict --file messages.txt`, and `predict --threshold T` to move the decision threshold.
 
@@ -169,13 +171,15 @@ src/spam_classifier/      the package
   models.py               Naive Bayes, logistic regression, linear SVM pipelines
   evaluation.py           metrics, thresholds, top terms, error cases
   report.py               the full comparison and run-log writer
+  export.py               model and fixture export for the browser demo
   predict.py              save, load, predict
   cli.py, __main__.py     python -m spam_classifier train | evaluate | predict
-tests/                    pytest suite (60 tests, written before the package)
+tests/                    pytest suite (69 tests, written before the code they test)
 notebooks/spam_ham.ipynb  the original notebook with its saved outputs
 data/spam.csv             UCI SMS Spam Collection (CC BY 4.0)
-scripts/export_model.py   trains the baseline and exports docs/model.json and docs/fixtures.json
-docs/                     GitHub Pages site (demo): index.html, predict.mjs, parity.test.mjs, model.json, fixtures.json
+scripts/export_model.py   trains both models and exports docs/model.json, docs/model-svm.json and the fixtures
+docs/                     GitHub Pages site (demo): index.html, predict.mjs and svm.mjs (the two models in JavaScript),
+                          parity.test.mjs and svm.test.mjs, model.json, model-svm.json, fixtures.json, fixtures-analyzer.json
 docs/runs/                dated run logs (2026-10-13 re-run; 2026-10-14 comparison, error analysis, results.json)
 docs/figures/             precision-recall and model-comparison figures
 archive/                  unrelated legacy site files (17 images, stylesheet, IEEE paper, Pages workflow template)
@@ -198,13 +202,12 @@ LICENSE                   CC BY-NC-ND 4.0
 - **Old, narrow data.** The corpus was published in 2011 and largely comes from UK and Singapore sources. Modern spam, other languages and other styles will be classified worse, and the figures above should not be read as expected performance on today's messages.
 - **Label noise and artefacts.** Some "spam" messages read like ordinary text and some tokens are encoding or HTML artefacts (`å£`, `lt`, `gt`).
 - **Precision of 1.0000 on 1,434 ham messages is not a guarantee** of no false alarms in use; with 0 false positives observed, a normal ham message could still be flagged on other data.
-- **The demo is the baseline**, not the best model. It shows the notebook's Naive Bayes, which misses about 1 in 4 spam messages here. Its character n-gram counterpart is not implemented in the browser.
+- **The demo's JavaScript is a re-implementation.** It matches scikit-learn's predictions on all 1,672 test messages, but its decision values differ by up to 2.1e-6 because the exported SVM coefficients are rounded to 6 decimals and floating-point sums run in a different order. A message with a decision value within about 1e-5 of 0 could be classified differently by the demo and by scikit-learn; the smallest margin among the test messages is 0.0009. Inputs with unusual white space or non-Latin text are covered by the analyzer fixtures, not by the accuracy figures.
 - SVM scores are margins, not probabilities, so the threshold values are not comparable with those for Naive Bayes.
 
 ## Future scope
 
 - Stratified splits, repeated cross-validation and tuned hyperparameters for every model.
-- Export the best model (word and character TF-IDF with a linear SVM) to the browser demo, with a parity test like the existing one.
 - Calibrated probabilities for the SVM, and a chosen operating threshold with a cost for false positives.
 - Newer and multilingual data, and a small transformer as a comparison.
 

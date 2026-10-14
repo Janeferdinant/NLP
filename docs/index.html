@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SMS Spam Classifier</title>
-<meta name="description" content="Classify a text message as spam or ham in your browser and see which words drove the decision. Multinomial Naive Bayes on TF-IDF, trained on the UCI SMS Spam Collection.">
+<meta name="description" content="Classify a text message as spam or ham in your browser and see which words drove the decision. A linear SVM on word and character TF-IDF, or Multinomial Naive Bayes, trained on the UCI SMS Spam Collection.">
 <style>
   :root {
     color-scheme: light;
@@ -49,6 +49,11 @@
   :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
   .model-label { margin-top: 0.75rem; color: var(--muted); max-width: 36rem; }
+  fieldset.models { margin: 1rem 0 0; padding: 0; border: 0; min-width: 0; }
+  fieldset.models legend { font-weight: 600; padding: 0; margin-bottom: 0.4rem; }
+  .model-choice { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.35rem 0; cursor: pointer; }
+  .model-choice input { margin-top: 0.35rem; accent-color: var(--ink); }
+  .model-choice small { display: block; color: var(--muted); }
   .privacy { color: var(--muted); font-size: 0.9375rem; }
 
   section { margin-top: 2.25rem; }
@@ -122,8 +127,15 @@
 <main>
   <header>
     <h1>Is this text message spam?</h1>
-    <p class="model-label">Multinomial Naive Bayes on TF-IDF, trained on the UCI SMS Spam Collection (CC BY 4.0)</p>
+    <p class="model-label" id="model-label">Linear SVM on word and character TF-IDF, trained on the UCI SMS Spam Collection (CC BY 4.0)</p>
     <p class="privacy">The model runs in your browser. What you type is never sent anywhere.</p>
+    <fieldset class="models">
+      <legend>Model</legend>
+      <label class="model-choice"><input type="radio" name="model" value="svm" checked>
+        <span>Linear SVM, word and character TF-IDF<small>The best model of the project; loads about 220 KB.</small></span></label>
+      <label class="model-choice"><input type="radio" name="model" value="nb">
+        <span>Naive Bayes, word TF-IDF<small>The notebook’s baseline; loads about 115 KB when chosen.</small></span></label>
+    </fieldset>
   </header>
 
   <section aria-labelledby="try">
@@ -151,7 +163,7 @@
     <ul class="legend">
       <li><span class="swatch" style="background:var(--spam)"></span>pushes toward spam</li>
       <li><span class="swatch" style="background:var(--ham)"></span>pushes toward ham</li>
-      <li><span class="swatch" style="background:var(--line)"></span>ignored: stop word or not in the vocabulary</li>
+      <li><span class="swatch" style="background:var(--line)"></span><span id="legend-ignored">ignored</span></li>
     </ul>
   </section>
 
@@ -172,15 +184,25 @@
   <section aria-label="How it works">
     <details id="how">
       <summary>How it works</summary>
-      <ol>
-        <li><strong>Split into words.</strong> The message is lowercased and cut into runs of two or more letters, digits or underscores, so “Free!!” becomes <code>free</code> and a single “u” is dropped.</li>
-        <li><strong>Drop stop words.</strong> Common English words such as <code>you</code>, <code>the</code> and <code>to</code> are removed using scikit-learn’s built-in list. Words the model never saw in training are ignored too.</li>
-        <li><strong>Weight with TF-IDF.</strong> Each remaining word gets its count times its inverse document frequency: words that are rare across the training messages weigh more. The vector is then scaled to length 1.</li>
-        <li><strong>Add up the evidence.</strong> For each class, Naive Bayes adds the log-probability of every word under that class, weighted by its TF-IDF value, to the class’s starting point (its share of the training data). The class with the higher total wins. The bars above show each word’s share of the difference.</li>
-      </ol>
-      <p>Naive Bayes treats words independently, so word order and context are invisible to it. It only knows the vocabulary of the messages it was trained on: English text messages from a research corpus published in 2011, drawn mostly from UK and Singapore sources.</p>
-      <p>On held-out messages it almost never marks a normal text as spam, but it lets a noticeable share of spam through. The measured results, with a majority-class baseline, are in the <a href="https://github.com/Janeferdinant/NLP#results">README</a>.</p>
-      <p>This page re-implements the scikit-learn pipeline in JavaScript. A parity test checks that it gives the same prediction as scikit-learn on all 1,672 held-out test messages.</p>
+      <div data-model="svm">
+        <ol>
+          <li><strong>Two views of the message.</strong> The message is lowercased and read twice. The word view cuts it into runs of two or more letters, digits or underscores (so “Free!!” becomes <code>free</code>) and drops common English stop words such as <code>you</code> and <code>the</code>. The character view cuts every white-space-separated word, padded with a space on each side, into pieces of 2 to 5 characters (so “free!!” gives pieces such as <code>␣fr</code>, <code>ree</code> and <code>e!!</code>). Pieces that were not seen at least twice in training are ignored.</li>
+          <li><strong>Weight with TF-IDF.</strong> Each known word or piece gets its count (for pieces, one plus the log of its count) times its inverse document frequency: rarer across the training messages means heavier. Each view’s vector is scaled to length 1.</li>
+          <li><strong>Add up the evidence.</strong> A linear SVM learned one weight for each of the 40,299 words and pieces. The decision value is the starting point (the bias) plus the sum of weight times TF-IDF value over everything found in the message. Above 0 means spam. The bars above split that sum over the pieces of the message that are separated by spaces: each word’s own weight plus the weights of its character pieces.</li>
+        </ol>
+        <p>The SVM sees short spans of characters, so it can pick up shapes such as <code>08</code> at the start of a phone number or <code>£</code> before a price, but not word order or meaning. Its decision value is a margin, not a probability.</p>
+      </div>
+      <div data-model="nb" hidden>
+        <ol>
+          <li><strong>Split into words.</strong> The message is lowercased and cut into runs of two or more letters, digits or underscores, so “Free!!” becomes <code>free</code> and a single “u” is dropped.</li>
+          <li><strong>Drop stop words.</strong> Common English words such as <code>you</code>, <code>the</code> and <code>to</code> are removed using scikit-learn’s built-in list. Words the model never saw in training are ignored too.</li>
+          <li><strong>Weight with TF-IDF.</strong> Each remaining word gets its count times its inverse document frequency: words that are rare across the training messages weigh more. The vector is then scaled to length 1.</li>
+          <li><strong>Add up the evidence.</strong> For each class, Naive Bayes adds the log-probability of every word under that class, weighted by its TF-IDF value, to the class’s starting point (its share of the training data). The class with the higher total wins. The bars above show each word’s share of the difference.</li>
+        </ol>
+        <p>Naive Bayes treats words independently, so word order and context are invisible to it. It ignores any word it did not see in training.</p>
+      </div>
+      <p>Both models only know English text messages from a research corpus published in 2011, drawn mostly from UK and Singapore sources. The measured results, with a majority-class baseline and a comparison of the models, are in the <a href="https://github.com/Janeferdinant/NLP#results">README</a>.</p>
+      <p>This page re-implements the scikit-learn pipelines in JavaScript. Parity tests check that it gives the same prediction as scikit-learn on all 1,672 held-out test messages, for both models.</p>
     </details>
   </section>
 
@@ -193,6 +215,7 @@
 
 <script type="module">
 import { explain } from './predict.mjs';
+import { explainSvm, prepareSvm } from './svm.mjs';
 
 const CLASS_NAMES = { 0: 'ham', 1: 'spam' };
 const EXAMPLES = {
@@ -201,12 +224,28 @@ const EXAMPLES = {
 };
 const WORD_RE = /[\p{L}\p{N}_]{2,}/gu;
 const TOP_N = 5;
+const MODELS = {
+  svm: {
+    file: 'model-svm.json',
+    label: 'Linear SVM on word and character TF-IDF, trained on the UCI SMS Spam Collection (CC BY 4.0)',
+    ignored: 'ignored: no known word or character piece',
+    load: raw => prepareSvm(raw),
+  },
+  nb: {
+    file: 'model.json',
+    label: 'Multinomial Naive Bayes on TF-IDF, trained on the UCI SMS Spam Collection (CC BY 4.0)',
+    ignored: 'ignored: stop word or not in the vocabulary',
+    load: raw => raw,
+  },
+};
 
 const $ = id => document.getElementById(id);
 const input = $('message');
 const status = $('status');
 const buttons = ['classify', 'ex-spam', 'ex-ham'].map($);
-let model = null;
+const loaded = { svm: null, nb: null };
+let current = 'svm';
+let loadToken = 0;
 
 function fmt(x) {
   const s = Math.abs(x).toFixed(2);
@@ -220,25 +259,25 @@ function tint(contribution, maxAbs) {
   return `color-mix(in srgb, ${color} ${pct}%, transparent)`;
 }
 
-function renderRead(text, byWord, maxAbs) {
+// tokens: [{ index, text, contribution }] in message order; contribution is null when ignored.
+function renderRead(text, tokens, maxAbs) {
   const read = $('read');
   read.replaceChildren();
   let last = 0;
-  for (const m of text.matchAll(WORD_RE)) {
-    if (m.index > last) read.append(text.slice(last, m.index));
+  for (const t of tokens) {
+    if (t.index > last) read.append(text.slice(last, t.index));
     const span = document.createElement('span');
     span.className = 'w';
-    span.textContent = m[0];
-    const w = byWord.get(m[0].toLowerCase());
-    if (w) {
-      span.style.background = tint(w.contribution, maxAbs);
-      span.title = `${w.word}: ${fmt(w.contribution)} toward ${w.contribution >= 0 ? 'spam' : 'ham'}`;
+    span.textContent = t.text;
+    if (t.contribution !== null) {
+      span.style.background = tint(t.contribution, maxAbs);
+      span.title = `${t.text}: ${fmt(t.contribution)} toward ${t.contribution >= 0 ? 'spam' : 'ham'}`;
     } else {
       span.classList.add('ignored');
       span.title = 'ignored';
     }
     read.append(span);
-    last = m.index + m[0].length;
+    last = t.index + t.text.length;
   }
   if (last < text.length) read.append(text.slice(last));
 }
@@ -276,7 +315,55 @@ function renderBars(listId, words, maxAbs, emptyText) {
   }
 }
 
+// Each view: { label (class 0/1), rows [[value, note]], tokens, items [{word, contribution}], statusText }
+function viewNaiveBayes(model, text) {
+  const r = explain(model, text);
+  const wordsTotal = r.logOdds - r.priorLogOdds;
+  const name = CLASS_NAMES[r.label];
+  const byWord = new Map(r.words.map(w => [w.word, w]));
+  const tokens = [...text.matchAll(WORD_RE)].map(m => {
+    const w = byWord.get(m[0].toLowerCase());
+    return { index: m.index, text: m[0], contribution: w ? w.contribution : null };
+  });
+  return {
+    label: r.label,
+    rows: [
+      [fmt(r.priorLogOdds), 'starting point: most training messages are ham'],
+      [fmt(wordsTotal), r.words.length ? `from ${r.words.length} known word${r.words.length === 1 ? '' : 's'}` : 'no known words, so only the starting point counts'],
+      [fmt(r.logOdds), `total log-odds of spam; ${r.logOdds > 0 ? 'above' : 'not above'} 0, so ${name}`],
+    ],
+    tokens,
+    items: r.words.map(w => ({ word: w.word, contribution: w.contribution })),
+    statusText: r.words.length
+      ? `${r.tokenCount} word${r.tokenCount === 1 ? '' : 's'} found; ${r.stopWordCount} stop word${r.stopWordCount === 1 ? '' : 's'} and ${r.unknownCount} unknown word${r.unknownCount === 1 ? '' : 's'} ignored.`
+      : 'None of these words are in the model’s vocabulary, so it falls back on its starting point.',
+  };
+}
+
+function viewSvm(model, text) {
+  const r = explainSvm(model, text);
+  const name = CLASS_NAMES[r.label];
+  const words = r.chunks.reduce((s, c) => s + c.wordContribution, 0);
+  const pieces = r.chunks.reduce((s, c) => s + c.charContribution, 0);
+  const known = r.chunks.filter(c => c.knownFeatures > 0);
+  return {
+    label: r.label,
+    rows: [
+      [fmt(r.intercept), 'starting point (the bias): leans toward ham'],
+      [fmt(words), `from ${r.wordFeatures} known whole word${r.wordFeatures === 1 ? '' : 's'}`],
+      [fmt(pieces), `from ${r.charFeatures} known character piece${r.charFeatures === 1 ? '' : 's'}`],
+      [fmt(r.score), `decision value; ${r.score > 0 ? 'above' : 'not above'} 0, so ${name}`],
+    ],
+    tokens: r.chunks.map(c => ({ index: c.index, text: c.text, contribution: c.knownFeatures > 0 ? c.contribution : null })),
+    items: known.map(c => ({ word: c.text, contribution: c.contribution })),
+    statusText: known.length
+      ? `${r.chunks.length} piece${r.chunks.length === 1 ? '' : 's'} separated by spaces; ${known.length} contained known words or character pieces.`
+      : 'Nothing in this text matches the model’s vocabulary, so it falls back on its starting point.',
+  };
+}
+
 function classify() {
+  const model = loaded[current];
   if (!model) return;
   const text = input.value;
   if (!text.trim()) {
@@ -286,22 +373,16 @@ function classify() {
     status.textContent = 'Type or paste a text message, or use one of the examples.';
     return;
   }
-  const r = explain(model, text);
-  const name = CLASS_NAMES[r.label];
+  const view = (current === 'svm' ? viewSvm : viewNaiveBayes)(model, text);
+  const name = CLASS_NAMES[view.label];
   const verdict = $('verdict');
   verdict.textContent = name === 'spam' ? 'Spam' : 'Ham';
   verdict.className = `verdict-word ${name}`;
   $('verdict-note').textContent = name === 'spam' ? 'This looks like spam.' : 'This looks like a normal message (ham).';
 
-  const wordsTotal = r.logOdds - r.priorLogOdds;
   const sum = $('sum');
   sum.replaceChildren();
-  const rows = [
-    [fmt(r.priorLogOdds), 'starting point: most training messages are ham'],
-    [fmt(wordsTotal), r.words.length ? `from ${r.words.length} known word${r.words.length === 1 ? '' : 's'}` : 'no known words, so only the starting point counts'],
-    [fmt(r.logOdds), `total log-odds of spam; ${r.logOdds > 0 ? 'above' : 'not above'} 0, so ${name}`],
-  ];
-  for (const [value, note] of rows) {
+  for (const [value, note] of view.rows) {
     const dt = document.createElement('dt');
     dt.textContent = value;
     const dd = document.createElement('dd');
@@ -309,20 +390,59 @@ function classify() {
     sum.append(dt, dd);
   }
 
-  const maxAbs = Math.max(0, ...r.words.map(w => Math.abs(w.contribution)));
-  renderRead(text, new Map(r.words.map(w => [w.word, w])), maxAbs);
-
-  const toSpam = r.words.filter(w => w.contribution > 0).sort((a, b) => b.contribution - a.contribution).slice(0, TOP_N);
-  const toHam = r.words.filter(w => w.contribution < 0).sort((a, b) => a.contribution - b.contribution).slice(0, TOP_N);
-  renderBars('bars-spam', toSpam, maxAbs, 'No words pushed toward spam.');
-  renderBars('bars-ham', toHam, maxAbs, 'No words pushed toward ham.');
+  const maxAbs = Math.max(0, ...view.items.map(w => Math.abs(w.contribution)));
+  renderRead(text, view.tokens, maxAbs);
+  const toSpam = view.items.filter(w => w.contribution > 0).sort((a, b) => b.contribution - a.contribution).slice(0, TOP_N);
+  const toHam = view.items.filter(w => w.contribution < 0).sort((a, b) => a.contribution - b.contribution).slice(0, TOP_N);
+  renderBars('bars-spam', toSpam, maxAbs, 'Nothing pushed toward spam.');
+  renderBars('bars-ham', toHam, maxAbs, 'Nothing pushed toward ham.');
 
   status.classList.remove('error');
-  status.textContent = r.words.length
-    ? `${r.tokenCount} word${r.tokenCount === 1 ? '' : 's'} found; ${r.stopWordCount} stop word${r.stopWordCount === 1 ? '' : 's'} and ${r.unknownCount} unknown word${r.unknownCount === 1 ? '' : 's'} ignored.`
-    : 'None of these words are in the model’s vocabulary, so it falls back on its starting point.';
+  status.textContent = view.statusText;
   $('result').hidden = false;
   $('words').hidden = false;
+}
+
+function showModelText() {
+  $('model-label').textContent = MODELS[current].label;
+  $('legend-ignored').textContent = MODELS[current].ignored;
+  document.querySelectorAll('[data-model]').forEach(el => { el.hidden = el.dataset.model !== current; });
+}
+
+function setBusy(busy) {
+  buttons.forEach(b => { b.disabled = busy; });
+}
+
+async function loadModel(key) {
+  if (loaded[key]) return;
+  const res = await fetch(MODELS[key].file);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  loaded[key] = MODELS[key].load(await res.json());
+}
+
+async function selectModel(key) {
+  current = key;
+  const token = ++loadToken;
+  showModelText();
+  setBusy(true);
+  status.classList.remove('error');
+  status.textContent = 'Loading the model…';
+  try {
+    await loadModel(key);
+  } catch (err) {
+    if (token !== loadToken) return;
+    status.classList.add('error');
+    status.textContent = `Could not load ${MODELS[key].file} (${err.message}). Serve the docs folder over HTTP, for example: python -m http.server -d docs`;
+    return;
+  }
+  if (token !== loadToken) return;
+  setBusy(false);
+  status.textContent = 'Model loaded. Type a message and choose Classify, or use an example.';
+  if (input.value.trim()) classify();
+  else {
+    $('result').hidden = true;
+    $('words').hidden = true;
+  }
 }
 
 $('classify').addEventListener('click', classify);
@@ -330,19 +450,11 @@ $('ex-spam').addEventListener('click', () => { input.value = EXAMPLES.spam; clas
 $('ex-ham').addEventListener('click', () => { input.value = EXAMPLES.ham; classify(); });
 input.addEventListener('input', () => { if (!$('result').hidden || !input.value.trim()) classify(); });
 input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) classify(); });
+document.querySelectorAll('input[name="model"]').forEach(r => {
+  r.addEventListener('change', () => { if (r.checked) selectModel(r.value); });
+});
 
-fetch('model.json')
-  .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
-  .then(m => {
-    model = m;
-    buttons.forEach(b => { b.disabled = false; });
-    status.textContent = 'Model loaded. Type a message and choose Classify, or use an example.';
-    if (input.value.trim()) classify();
-  })
-  .catch(err => {
-    status.classList.add('error');
-    status.textContent = `Could not load model.json (${err.message}). Serve the docs folder over HTTP, for example: python -m http.server -d docs`;
-  });
+selectModel(document.querySelector('input[name="model"]:checked').value);
 </script>
 </body>
 </html>

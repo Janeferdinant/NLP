@@ -6,8 +6,6 @@ Naive Bayes and logistic regression, a signed margin for the linear SVM. A messa
 the convention of ``sklearn.metrics.precision_recall_curve``.
 """
 
-import re
-
 import numpy as np
 from sklearn.base import clone
 from sklearn.model_selection import StratifiedKFold
@@ -137,11 +135,3 @@ def error_cases(texts, y_true, y_pred, scores):
     fn.sort(key=lambda e: e["score"])
     fp.sort(key=lambda e: -e["score"])
     return fn, fp
-
-
-_LONG_NUMBER = re.compile(r"(?<!\d)\+?\d(?:[ -]?\d){6,}(?!\d)")
-
-
-def mask_digits(text):
-    """Replace phone-number-like digit runs (7 or more digits) by ``[number]`` before text is quoted."""
-    return _LONG_NUMBER.sub("[number]", text)

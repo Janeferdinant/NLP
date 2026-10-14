@@ -5,7 +5,6 @@ from spam_classifier.evaluation import (
     bootstrap_accuracy_ci,
     compute_metrics,
     error_cases,
-    mask_digits,
     operating_point,
     out_of_fold_scores,
     spam_scores,
@@ -114,8 +113,3 @@ def test_error_cases_split_false_negatives_and_false_positives():
     assert [e["text"] for e in fn] == ["b"]
     assert [e["text"] for e in fp] == ["c"]
     assert fn[0]["score"] == pytest.approx(0.2)
-
-
-def test_mask_digits_hides_phone_like_numbers_and_keeps_short_ones():
-    assert mask_digits("call 08001234567 or 07123 456789 now") == "call [number] or [number] now"
-    assert mask_digits("text 2 for 1 at 8pm, send 80062") == "text 2 for 1 at 8pm, send 80062"
