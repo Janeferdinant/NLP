@@ -15,8 +15,9 @@ const model = prepareSvm(raw);
 const cases = JSON.parse(read('fixtures.json'));
 const analyzer = JSON.parse(read('fixtures-analyzer.json'));
 
-test('char_wb n-grams pad each word with spaces and repeat a short word once per size', () => {
-  assert.deepEqual(charNgrams('Hi', 2, 5), [' h', 'hi', 'i ', ' hi', 'hi ', ' hi ', ' hi ']);
+test('char_wb n-grams pad each word with spaces and stop at the whole padded word', () => {
+  // ' hi ' has 4 characters, so sizes 2, 3 and 4 are produced and size 5 is skipped (scikit-learn breaks out)
+  assert.deepEqual(charNgrams('Hi', 2, 5), [' h', 'hi', 'i ', ' hi', 'hi ', ' hi ']);
   assert.deepEqual(charNgrams('', 2, 5), []);
   assert.deepEqual(charNgrams('a  b', 2, 2), [' a', 'a ', ' b', 'b ']);
 });
@@ -26,8 +27,8 @@ test('char_wb n-grams count characters, not UTF-16 units', () => {
 });
 
 test('char_wb n-grams match scikit-learn on every analyzer fixture', () => {
-  assert.ok(analyzer.cases.length >= 40);
-  for (const c of analyzer.cases) {
+  assert.ok(analyzer.length >= 40);
+  for (const c of analyzer) {
     assert.deepEqual(charNgrams(c.text, 2, 5), c.ngrams, JSON.stringify(c.text));
   }
 });

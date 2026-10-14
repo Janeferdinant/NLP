@@ -53,7 +53,13 @@ def test_export_svm_coefficients_reproduce_the_decision_function(svm, toy_messag
 def test_export_nb_keeps_the_existing_schema(nb):
     out = export_nb(nb.named_steps["tfidf"], nb.named_steps["clf"])
     assert set(out) == {
-        "vocabulary", "idf", "stop_words", "params", "classes", "class_log_prior", "feature_log_prob",
+        "vocabulary",
+        "idf",
+        "stop_words",
+        "params",
+        "classes",
+        "class_log_prior",
+        "feature_log_prob",
     }
 
 

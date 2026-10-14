@@ -7,7 +7,7 @@ tuned, so no model has seen the test messages in any way.
 
 Outputs, with ``<date>`` the run date:
   <out_dir>/<date>-model-comparison.md   environment, results tables, thresholds, top terms
-  <out_dir>/<date>-error-analysis.md     missed spam and false alarms, masked and shortened
+  <out_dir>/<date>-error-analysis.md     missed spam and false alarms, quoted in full
   <out_dir>/<date>-results.json          the same numbers in machine-readable form
   <figures_dir>/pr_curve.png, model_comparison.png
 """
@@ -46,7 +46,6 @@ from .evaluation import (  # noqa: E402
     compute_metrics,
     default_threshold,
     error_cases,
-    mask_digits,
     operating_point,
     out_of_fold_scores,
     spam_scores,
@@ -134,13 +133,17 @@ def _run_experiment(exp, x_train, y_train, x_test, y_test):
     }
 
 
-def _short(text, limit=160):
-    text = " ".join(mask_digits(text).split())
-    return text if len(text) <= limit else text[: limit - 3] + "..."
+def quote_message(text):
+    """A dataset message as a one-line Markdown code span, otherwise exactly as it appears in the data.
 
-
-def _code(text):
-    return "`" + text.replace("`", "'") + "`"
+    Nothing is masked or shortened; line breaks become spaces so that each message stays on one list line.
+    The span uses more backticks than the longest run inside the message so the text survives unchanged.
+    """
+    text = " ".join(text.split())
+    longest = max((len(run) for run in re.findall(r"`+", text)), default=0)
+    fence = "`" * (longest + 1)
+    pad = " " if text.startswith("`") or text.endswith("`") else ""
+    return f"{fence}{pad}{text}{pad}{fence}"
 
 
 _URL = re.compile(r"(?i)(https?://|www\.|\b\w+\.(com|co\.uk|net|org)\b)")
@@ -327,7 +330,7 @@ def _op_row(label, r, status):
 
 def _terms_table(spam, ham, status):
     rows = [
-        [i + 1, _code(repr(s[0])), f"{s[1]:.2f}", _code(repr(h[0])), f"{h[1]:.2f}", status]
+        [i + 1, quote_message(repr(s[0])), f"{s[1]:.2f}", quote_message(repr(h[0])), f"{h[1]:.2f}", status]
         for i, (s, h) in enumerate(zip(spam, ham, strict=True))
     ]
     return _table(["#", "Spam term", "Weight", "Ham term", "Weight", "Status"], rows)
@@ -464,7 +467,7 @@ def _errors_md(run_date, status, results, best_key, errors, n_test):
     )
     L.append(
         "The messages below are quoted from `data/spam.csv` (UCI SMS Spam Collection, CC BY 4.0), which is already public in this repository. "
-        "Digit runs of 7 or more digits are replaced by `[number]` and each message is cut at 160 characters. Scores are the model's spam score "
+        "They are shown exactly as they appear in the dataset, in full: nothing is masked or shortened, so phone numbers, shortcodes and names are those of the public corpus (line breaks become spaces). Scores are the model's spam score "
         "(probability, or SVM margin where the heading says so).\n"
     )
     if best_key != BASELINE_KEY:
@@ -507,10 +510,10 @@ def _errors_md(run_date, status, results, best_key, errors, n_test):
         )
         L.append("")
         L.append(f"### False positives: ham flagged as spam ({len(e['fp'])}, {status})\n")
-        L += [f"- score {x['score']:.3f}: {_code(_short(x['text']))}" for x in e["fp"]] or ["None."]
+        L += [f"- score {x['score']:.3f}: {quote_message(x['text'])}" for x in e["fp"]] or ["None."]
         L.append("")
         L.append(f"### False negatives: spam let through ({len(e['fn'])}, {status})\n")
-        L += [f"- score {x['score']:.3f}: {_code(_short(x['text']))}" for x in e["fn"]] or ["None."]
+        L += [f"- score {x['score']:.3f}: {quote_message(x['text'])}" for x in e["fn"]] or ["None."]
         L.append("")
     return "\n".join(L)
 
