@@ -467,6 +467,13 @@ def _errors_md(run_date, status, results, best_key, errors, n_test):
         "Digit runs of 7 or more digits are replaced by `[number]` and each message is cut at 160 characters. Scores are the model's spam score "
         "(probability, or SVM margin where the heading says so).\n"
     )
+    if best_key != BASELINE_KEY:
+        o = errors["overlap"]
+        L.append(
+            f"## Baseline against the best model ({status})\n\n"
+            f"Of the {o['baseline_fn']} spam messages the baseline missed, the best model also misses {o['both']} and catches "
+            f"{o['baseline_fn'] - o['both']}. The best model misses {o['best_only']} spam messages that the baseline caught.\n"
+        )
     for key, heading in errors["order"]:
         e = errors[key]
         res = results[key]
@@ -545,6 +552,14 @@ def run_report(data_path=None, out_dir="docs/runs", figures_dir="docs/figures", 
         studies[key] = _threshold_study(results[key], x_train, y_train, y_test)
         errors[key] = _error_study(results[key], x_test_s, y_test_s)
         terms[key] = top_terms(results[key]["_pipe"], 20)
+
+    if best_key != BASELINE_KEY:
+        miss = {k: set(np.nonzero((y_test == 1) & (results[k]["_pred"] == 0))[0]) for k, _ in focus}
+        errors["overlap"] = {
+            "baseline_fn": len(miss[BASELINE_KEY]),
+            "both": len(miss[BASELINE_KEY] & miss[best_key]),
+            "best_only": len(miss[best_key] - miss[BASELINE_KEY]),
+        }
 
     _plot_pr(results, best_key, y_test, figures_dir / "pr_curve.png")
     _plot_comparison(results, figures_dir / "model_comparison.png")

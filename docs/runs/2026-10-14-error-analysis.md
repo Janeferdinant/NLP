@@ -4,6 +4,10 @@ Status: **Verified (run 2026-10-14)**. Spam is the positive class; a *false nega
 
 The messages below are quoted from `data/spam.csv` (UCI SMS Spam Collection, CC BY 4.0), which is already public in this repository. Digit runs of 7 or more digits are replaced by `[number]` and each message is cut at 160 characters. Scores are the model's spam score (probability, or SVM margin where the heading says so).
 
+## Baseline against the best model (Verified (run 2026-10-14))
+
+Of the 60 spam messages the baseline missed, the best model also misses 11 and catches 49. The best model misses 0 spam messages that the baseline caught.
+
 ## Baseline from the notebook: Multinomial Naive Bayes, word TF-IDF
 
 Counts: 60 false negatives, 0 false positives. (Verified (run 2026-10-14))

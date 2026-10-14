@@ -26,15 +26,15 @@ Status: **Verified (run 2026-10-14)**. These are new numbers from a new run. The
 
 | Model, features | Features | Accuracy | Accuracy 95% CI | Precision | Recall | F1 | FP | FN | AP | CV F1 (5-fold, train) | Fit s | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Linear SVM, word + char TF-IDF | 40,299 | 99.34% | 98.92 to 99.70% | 1.0000 | 0.9538 | 0.9763 | 0 | 11 | 0.9971 | 0.9570 +/- 0.0131 | 0.65 | Verified (run 2026-10-14) |
-| Linear SVM, char 2-5 TF-IDF | 33,460 | 99.10% | 98.62 to 99.52% | 1.0000 | 0.9370 | 0.9675 | 0 | 15 | 0.9978 | 0.9569 +/- 0.0111 | 0.54 | Verified (run 2026-10-14) |
-| Linear SVM, word TF-IDF | 6,839 | 98.62% | 98.02 to 99.16% | 0.9864 | 0.9160 | 0.9499 | 3 | 20 | 0.9887 | 0.9198 +/- 0.0198 | 0.09 | Verified (run 2026-10-14) |
-| Logistic regression, word + char TF-IDF | 40,299 | 97.85% | 97.13 to 98.50% | 1.0000 | 0.8487 | 0.9182 | 0 | 36 | 0.9945 | 0.9122 +/- 0.0154 | 0.78 | Verified (run 2026-10-14) |
-| Logistic regression, char 2-5 TF-IDF | 33,460 | 97.01% | 96.17 to 97.79% | 1.0000 | 0.7899 | 0.8826 | 0 | 50 | 0.9960 | 0.8884 +/- 0.0165 | 0.59 | Verified (run 2026-10-14) |
-| Multinomial Naive Bayes, word + char TF-IDF | 40,299 | 96.89% | 95.99 to 97.73% | 1.0000 | 0.7815 | 0.8774 | 0 | 52 | 0.9715 | 0.8752 +/- 0.0181 | 0.62 | Verified (run 2026-10-14) |
+| Linear SVM, word + char TF-IDF | 40,299 | 99.34% | 98.92 to 99.70% | 1.0000 | 0.9538 | 0.9763 | 0 | 11 | 0.9971 | 0.9570 +/- 0.0131 | 0.77 | Verified (run 2026-10-14) |
+| Linear SVM, char 2-5 TF-IDF | 33,460 | 99.10% | 98.62 to 99.52% | 1.0000 | 0.9370 | 0.9675 | 0 | 15 | 0.9978 | 0.9569 +/- 0.0111 | 0.66 | Verified (run 2026-10-14) |
+| Linear SVM, word TF-IDF | 6,839 | 98.62% | 98.02 to 99.16% | 0.9864 | 0.9160 | 0.9499 | 3 | 20 | 0.9887 | 0.9198 +/- 0.0198 | 0.07 | Verified (run 2026-10-14) |
+| Logistic regression, word + char TF-IDF | 40,299 | 97.85% | 97.13 to 98.50% | 1.0000 | 0.8487 | 0.9182 | 0 | 36 | 0.9945 | 0.9122 +/- 0.0154 | 0.87 | Verified (run 2026-10-14) |
+| Logistic regression, char 2-5 TF-IDF | 33,460 | 97.01% | 96.17 to 97.79% | 1.0000 | 0.7899 | 0.8826 | 0 | 50 | 0.9960 | 0.8884 +/- 0.0165 | 0.69 | Verified (run 2026-10-14) |
+| Multinomial Naive Bayes, word + char TF-IDF | 40,299 | 96.89% | 95.99 to 97.73% | 1.0000 | 0.7815 | 0.8774 | 0 | 52 | 0.9715 | 0.8752 +/- 0.0181 | 0.68 | Verified (run 2026-10-14) |
 | Multinomial Naive Bayes, word TF-IDF | 6,839 | 96.41% | 95.51 to 97.31% | 1.0000 | 0.7479 | 0.8558 | 0 | 60 | 0.9734 | 0.8492 +/- 0.0217 | 0.07 | Verified (run 2026-10-14) |
-| Logistic regression, word TF-IDF | 6,839 | 95.28% | 94.20 to 96.35% | 0.9818 | 0.6807 | 0.8040 | 3 | 76 | 0.9772 | 0.7798 +/- 0.0296 | 0.06 | Verified (run 2026-10-14) |
-| Multinomial Naive Bayes, char 2-5 TF-IDF | 33,460 | 94.92% | 93.78 to 95.93% | 1.0000 | 0.6429 | 0.7826 | 0 | 85 | 0.9566 | 0.7685 +/- 0.0354 | 0.80 | Verified (run 2026-10-14) |
+| Logistic regression, word TF-IDF | 6,839 | 95.28% | 94.20 to 96.35% | 0.9818 | 0.6807 | 0.8040 | 3 | 76 | 0.9772 | 0.7798 +/- 0.0296 | 0.11 | Verified (run 2026-10-14) |
+| Multinomial Naive Bayes, char 2-5 TF-IDF | 33,460 | 94.92% | 93.78 to 95.93% | 1.0000 | 0.6429 | 0.7826 | 0 | 85 | 0.9566 | 0.7685 +/- 0.0354 | 0.52 | Verified (run 2026-10-14) |
 
 Rows are ordered by cross-validated F1 on the training split. FP = false positives (ham flagged as spam); FN = false negatives (spam missed).
 
