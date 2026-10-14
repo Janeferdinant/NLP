@@ -20,7 +20,7 @@ def nb(toy_messages):
 
 
 def test_export_svm_schema(svm):
-    out = export_svm(svm)
+    out = export_svm(svm, n_docs=40)
     assert out["model"] == "svm"
     assert out["classes"] == [0, 1]
     assert set(out["word"]) == {"params", "stop_words", "terms", "df", "n_docs"}
@@ -34,7 +34,7 @@ def test_export_svm_schema(svm):
 
 
 def test_export_svm_document_frequencies_rebuild_the_idf_exactly(svm):
-    out = export_svm(svm)
+    out = export_svm(svm, n_docs=40)
     for name, vec in zip(("word", "char"), (t for _, t in svm.named_steps["tfidf"].transformer_list), strict=True):
         part = out[name]
         idf = np.log((1 + part["n_docs"]) / (1 + np.array(part["df"]))) + 1
@@ -44,7 +44,7 @@ def test_export_svm_document_frequencies_rebuild_the_idf_exactly(svm):
 
 def test_export_svm_coefficients_reproduce_the_decision_function(svm, toy_messages):
     texts, _ = toy_messages
-    out = export_svm(svm)
+    out = export_svm(svm, n_docs=40)
     x = svm.named_steps["tfidf"].transform(texts)
     scores = x @ np.array(out["coef"]) + out["intercept"]
     np.testing.assert_allclose(scores, svm.decision_function(texts), atol=1e-5)
