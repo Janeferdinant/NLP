@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMS Spam Classifier</title>
+<meta name="description" content="Classify a text message as spam or ham in your browser and see which words drove the decision. Multinomial Naive Bayes on TF-IDF, trained on the UCI SMS Spam Collection.">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f4f6f8;
+    --surface: #ffffff;
+    --ink: #18212b;
+    --muted: #5a6675;
+    --line: #d5dce3;
+    --spam: #b0245e;
+    --ham: #0e6f73;
+    --focus: #2b59c3;
+    --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --paper: #12171d;
+      --surface: #1a2129;
+      --ink: #e6ebf0;
+      --muted: #9aa6b2;
+      --line: #2e3945;
+      --spam: #f06d9e;
+      --ham: #4fc3c0;
+      --focus: #8fb0ff;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 1rem/1.55 var(--sans);
+  }
+  main { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1rem 3rem; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(2rem, 6vw, 2.75rem); letter-spacing: -0.01em; }
+  h2 { font-size: 1.375rem; margin-bottom: 0.75rem; }
+  p { margin: 0 0 0.75rem; }
+  a { color: inherit; text-underline-offset: 0.15em; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .model-label { margin-top: 0.75rem; color: var(--muted); max-width: 36rem; }
+  .privacy { color: var(--muted); font-size: 0.9375rem; }
+
+  section { margin-top: 2.25rem; }
+
+  /* The composer looks like a message bubble */
+  label[for="message"] { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+  textarea {
+    display: block; width: 100%; min-height: 7.5rem; resize: vertical;
+    padding: 0.875rem 1rem; font: inherit; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 1.25rem 1.25rem 1.25rem 0.375rem;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  button {
+    font: inherit; font-size: 0.9375rem; padding: 0.5rem 0.95rem; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 600; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { color: var(--muted); margin-top: 0.75rem; min-height: 1.5em; }
+  .status.error { color: var(--spam); }
+
+  /* Verdict */
+  .verdict { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  .verdict-word { font-family: var(--serif); font-size: clamp(2.25rem, 9vw, 3.25rem); font-weight: 700; line-height: 1; }
+  .verdict-word.spam { color: var(--spam); }
+  .verdict-word.ham { color: var(--ham); }
+  .verdict-note { color: var(--muted); }
+  .sum { margin-top: 0.75rem; display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.75rem; font-variant-numeric: tabular-nums; max-width: 30rem; }
+  .sum dt { text-align: right; font-weight: 600; }
+  .sum dd { margin: 0; color: var(--muted); }
+
+  /* The message as the model read it: the one bold element */
+  .read {
+    margin-top: 1.25rem; padding: 1rem 1.125rem; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 1.25rem 1.25rem 0.375rem 1.25rem;
+    font-size: 1.125rem; line-height: 1.9; overflow-wrap: anywhere; white-space: pre-wrap;
+  }
+  .w { border-radius: 0.3em; padding: 0.05em 0.15em; }
+  .w.ignored { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted) 60%, transparent); }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; margin-top: 0.75rem; color: var(--muted); font-size: 0.875rem; padding: 0; list-style: none; }
+  .swatch { display: inline-block; width: 0.9em; height: 0.9em; border-radius: 0.2em; vertical-align: -0.1em; margin-right: 0.35em; }
+
+  /* Top contributing words */
+  .columns { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .columns { grid-template-columns: 1fr 1fr; } }
+  .columns h3 { font-size: 1.0625rem; margin-bottom: 0.5rem; }
+  .bars { list-style: none; margin: 0; padding: 0; }
+  .bars li { display: grid; grid-template-columns: minmax(5rem, auto) 1fr 3.25rem; align-items: center; gap: 0.5rem; padding: 0.2rem 0; }
+  .bars .word { font-weight: 600; overflow-wrap: anywhere; }
+  .bars .track { height: 0.6rem; background: color-mix(in srgb, var(--line) 55%, transparent); border-radius: 999px; overflow: hidden; }
+  .bars .fill { height: 100%; border-radius: 999px; }
+  .bars .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.875rem; }
+  .bars .none { display: block; color: var(--muted); }
+
+  /* How it works */
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem; padding: 0 1.125rem; }
+  summary { cursor: pointer; padding: 0.9rem 0; font-family: var(--serif); font-size: 1.25rem; font-weight: 600; }
+  details[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 0.9rem; }
+  details ol { padding-left: 1.25rem; margin: 0 0 1rem; }
+  details li { margin-bottom: 0.6rem; }
+  details p, details li { font-family: var(--serif); line-height: 1.65; }
+  code { font-size: 0.9em; background: color-mix(in srgb, var(--line) 45%, transparent); padding: 0.05em 0.3em; border-radius: 0.25em; }
+
+  footer { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.875rem; }
+  footer p { margin-bottom: 0.4rem; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Is this text message spam?</h1>
+    <p class="model-label">Multinomial Naive Bayes on TF-IDF, trained on the UCI SMS Spam Collection (CC BY 4.0)</p>
+    <p class="privacy">The model runs in your browser. What you type is never sent anywhere.</p>
+  </header>
+
+  <section aria-labelledby="try">
+    <h2 id="try">Try a message</h2>
+    <label for="message">Text message</label>
+    <textarea id="message" placeholder="Type or paste a text message" spellcheck="false"></textarea>
+    <div class="actions">
+      <button type="button" class="primary" id="classify" disabled>Classify</button>
+      <button type="button" id="ex-spam" disabled>Use a spam example</button>
+      <button type="button" id="ex-ham" disabled>Use a ham example</button>
+    </div>
+    <p class="status" id="status" role="status">Loading the model…</p>
+  </section>
+
+  <section id="result" aria-labelledby="result-title" hidden>
+    <h2 id="result-title">Prediction</h2>
+    <div class="verdict" aria-live="polite">
+      <span class="verdict-word" id="verdict"></span>
+      <span class="verdict-note" id="verdict-note"></span>
+    </div>
+    <dl class="sum" id="sum"></dl>
+
+    <h3 style="margin-top:1.5rem">The message as the model read it</h3>
+    <div class="read" id="read"></div>
+    <ul class="legend">
+      <li><span class="swatch" style="background:var(--spam)"></span>pushes toward spam</li>
+      <li><span class="swatch" style="background:var(--ham)"></span>pushes toward ham</li>
+      <li><span class="swatch" style="background:var(--line)"></span>ignored: stop word or not in the vocabulary</li>
+    </ul>
+  </section>
+
+  <section id="words" aria-labelledby="words-title" hidden>
+    <h2 id="words-title">Top contributing words</h2>
+    <div class="columns">
+      <div>
+        <h3>Toward spam</h3>
+        <ul class="bars" id="bars-spam"></ul>
+      </div>
+      <div>
+        <h3>Toward ham</h3>
+        <ul class="bars" id="bars-ham"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="How it works">
+    <details id="how">
+      <summary>How it works</summary>
+      <ol>
+        <li><strong>Split into words.</strong> The message is lowercased and cut into runs of two or more letters, digits or underscores, so “Free!!” becomes <code>free</code> and a single “u” is dropped.</li>
+        <li><strong>Drop stop words.</strong> Common English words such as <code>you</code>, <code>the</code> and <code>to</code> are removed using scikit-learn’s built-in list. Words the model never saw in training are ignored too.</li>
+        <li><strong>Weight with TF-IDF.</strong> Each remaining word gets its count times its inverse document frequency: words that are rare across the training messages weigh more. The vector is then scaled to length 1.</li>
+        <li><strong>Add up the evidence.</strong> For each class, Naive Bayes adds the log-probability of every word under that class, weighted by its TF-IDF value, to the class’s starting point (its share of the training data). The class with the higher total wins. The bars above show each word’s share of the difference.</li>
+      </ol>
+      <p>Naive Bayes treats words independently, so word order and context are invisible to it. It only knows the vocabulary of the messages it was trained on: English text messages from a research corpus published in 2011, drawn mostly from UK and Singapore sources.</p>
+      <p>On held-out messages it almost never marks a normal text as spam, but it lets a noticeable share of spam through. The measured results, with a majority-class baseline, are in the <a href="https://github.com/Janeferdinant/NLP#results">README</a>.</p>
+      <p>This page re-implements the scikit-learn pipeline in JavaScript. A parity test checks that it gives the same prediction as scikit-learn on all 1,672 held-out test messages.</p>
+    </details>
+  </section>
+
+  <footer>
+    <p>Code and notebook: <a href="https://github.com/Janeferdinant/NLP">github.com/Janeferdinant/NLP</a></p>
+    <p>Data: SMS Spam Collection by Tiago A. Almeida and J. M. Gómez Hidalgo (2011), UCI Machine Learning Repository, <a href="https://doi.org/10.24432/C5CC84">doi:10.24432/C5CC84</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+    <p>By <a href="https://janeferdinant.vercel.app">Jane Rose Ferdinant</a>. Original work licensed <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.</p>
+  </footer>
+</main>
+
+<script type="module">
+import { explain } from './predict.mjs';
+
+const CLASS_NAMES = { 0: 'ham', 1: 'spam' };
+const EXAMPLES = {
+  spam: 'Congratulations! You have won a free entry to our weekly prize draw. Text WIN now to claim your cash prize. T&Cs apply.',
+  ham: 'Hey, are we still on for lunch tomorrow? I can pick you up around 12 if that works.',
+};
+const WORD_RE = /[\p{L}\p{N}_]{2,}/gu;
+const TOP_N = 5;
+
+const $ = id => document.getElementById(id);
+const input = $('message');
+const status = $('status');
+const buttons = ['classify', 'ex-spam', 'ex-ham'].map($);
+let model = null;
+
+function fmt(x) {
+  const s = Math.abs(x).toFixed(2);
+  return (x < 0 ? '−' : '+') + s;
+}
+
+function tint(contribution, maxAbs) {
+  const share = maxAbs > 0 ? Math.abs(contribution) / maxAbs : 0;
+  const pct = Math.round(18 + 52 * share);
+  const color = contribution >= 0 ? 'var(--spam)' : 'var(--ham)';
+  return `color-mix(in srgb, ${color} ${pct}%, transparent)`;
+}
+
+function renderRead(text, byWord, maxAbs) {
+  const read = $('read');
+  read.replaceChildren();
+  let last = 0;
+  for (const m of text.matchAll(WORD_RE)) {
+    if (m.index > last) read.append(text.slice(last, m.index));
+    const span = document.createElement('span');
+    span.className = 'w';
+    span.textContent = m[0];
+    const w = byWord.get(m[0].toLowerCase());
+    if (w) {
+      span.style.background = tint(w.contribution, maxAbs);
+      span.title = `${w.word}: ${fmt(w.contribution)} toward ${w.contribution >= 0 ? 'spam' : 'ham'}`;
+    } else {
+      span.classList.add('ignored');
+      span.title = 'ignored';
+    }
+    read.append(span);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) read.append(text.slice(last));
+}
+
+function renderBars(listId, words, maxAbs, emptyText) {
+  const list = $(listId);
+  list.replaceChildren();
+  if (!words.length) {
+    const li = document.createElement('li');
+    const span = document.createElement('span');
+    span.className = 'none';
+    span.textContent = emptyText;
+    li.append(span);
+    list.append(li);
+    return;
+  }
+  for (const w of words) {
+    const li = document.createElement('li');
+    const word = document.createElement('span');
+    word.className = 'word';
+    word.textContent = w.word;
+    const track = document.createElement('span');
+    track.className = 'track';
+    const fill = document.createElement('span');
+    fill.className = 'fill';
+    fill.style.display = 'block';
+    fill.style.width = `${Math.max(4, (100 * Math.abs(w.contribution)) / maxAbs)}%`;
+    fill.style.background = w.contribution >= 0 ? 'var(--spam)' : 'var(--ham)';
+    track.append(fill);
+    const val = document.createElement('span');
+    val.className = 'val';
+    val.textContent = fmt(w.contribution);
+    li.append(word, track, val);
+    list.append(li);
+  }
+}
+
+function classify() {
+  if (!model) return;
+  const text = input.value;
+  if (!text.trim()) {
+    $('result').hidden = true;
+    $('words').hidden = true;
+    status.classList.remove('error');
+    status.textContent = 'Type or paste a text message, or use one of the examples.';
+    return;
+  }
+  const r = explain(model, text);
+  const name = CLASS_NAMES[r.label];
+  const verdict = $('verdict');
+  verdict.textContent = name === 'spam' ? 'Spam' : 'Ham';
+  verdict.className = `verdict-word ${name}`;
+  $('verdict-note').textContent = name === 'spam' ? 'This looks like spam.' : 'This looks like a normal message (ham).';
+
+  const wordsTotal = r.logOdds - r.priorLogOdds;
+  const sum = $('sum');
+  sum.replaceChildren();
+  const rows = [
+    [fmt(r.priorLogOdds), 'starting point: most training messages are ham'],
+    [fmt(wordsTotal), r.words.length ? `from ${r.words.length} known word${r.words.length === 1 ? '' : 's'}` : 'no known words, so only the starting point counts'],
+    [fmt(r.logOdds), `total log-odds of spam; ${r.logOdds > 0 ? 'above' : 'not above'} 0, so ${name}`],
+  ];
+  for (const [value, note] of rows) {
+    const dt = document.createElement('dt');
+    dt.textContent = value;
+    const dd = document.createElement('dd');
+    dd.textContent = note;
+    sum.append(dt, dd);
+  }
+
+  const maxAbs = Math.max(0, ...r.words.map(w => Math.abs(w.contribution)));
+  renderRead(text, new Map(r.words.map(w => [w.word, w])), maxAbs);
+
+  const toSpam = r.words.filter(w => w.contribution > 0).sort((a, b) => b.contribution - a.contribution).slice(0, TOP_N);
+  const toHam = r.words.filter(w => w.contribution < 0).sort((a, b) => a.contribution - b.contribution).slice(0, TOP_N);
+  renderBars('bars-spam', toSpam, maxAbs, 'No words pushed toward spam.');
+  renderBars('bars-ham', toHam, maxAbs, 'No words pushed toward ham.');
+
+  status.classList.remove('error');
+  status.textContent = r.words.length
+    ? `${r.tokenCount} word${r.tokenCount === 1 ? '' : 's'} found; ${r.stopWordCount} stop word${r.stopWordCount === 1 ? '' : 's'} and ${r.unknownCount} unknown word${r.unknownCount === 1 ? '' : 's'} ignored.`
+    : 'None of these words are in the model’s vocabulary, so it falls back on its starting point.';
+  $('result').hidden = false;
+  $('words').hidden = false;
+}
+
+$('classify').addEventListener('click', classify);
+$('ex-spam').addEventListener('click', () => { input.value = EXAMPLES.spam; classify(); });
+$('ex-ham').addEventListener('click', () => { input.value = EXAMPLES.ham; classify(); });
+input.addEventListener('input', () => { if (!$('result').hidden || !input.value.trim()) classify(); });
+input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) classify(); });
+
+fetch('model.json')
+  .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+  .then(m => {
+    model = m;
+    buttons.forEach(b => { b.disabled = false; });
+    status.textContent = 'Model loaded. Type a message and choose Classify, or use an example.';
+    if (input.value.trim()) classify();
+  })
+  .catch(err => {
+    status.classList.add('error');
+    status.textContent = `Could not load model.json (${err.message}). Serve the docs folder over HTTP, for example: python -m http.server -d docs`;
+  });
+</script>
+</body>
+</html>
