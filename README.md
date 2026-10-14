@@ -1,6 +1,6 @@
 # SMS Spam Classifier: TF-IDF and Naive Bayes that flags spam text messages
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Janeferdinant/NLP/blob/main/spam_ham.ipynb)
 
 ## Overview
@@ -105,7 +105,7 @@ docs/model.json           exported model parameters
 docs/fixtures.json        the 1,672 test messages with scikit-learn's predictions
 docs/runs/                dated run logs
 THIRD_PARTY_NOTICES.md    dataset and third-party attributions
-LICENSE                   CC BY-NC-SA 4.0
+LICENSE                   CC BY-NC-ND 4.0
 ```
 
 The repository also holds older files that are unrelated to this project (17 JPEG images, `stylesheet.css`, `spam-ham.pdf` and a GitHub Pages workflow). They are listed for removal in the pull request that added this README and are not part of the project.
@@ -140,7 +140,7 @@ The repository also holds older files that are unrelated to this project (17 JPE
 
 ## License
 
-Original work © Jane Rose Ferdinant, licensed CC BY-NC-SA 4.0. Third-party components retain their own licenses; see THIRD_PARTY_NOTICES.md.
+Original work © Jane Rose Ferdinant, licensed CC BY-NC-ND 4.0. Third-party components retain their own licenses; see THIRD_PARTY_NOTICES.md.
 
 ## Author
 

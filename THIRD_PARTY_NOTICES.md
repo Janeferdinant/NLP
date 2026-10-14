@@ -1,6 +1,6 @@
 # Third-party notices
 
-Original work in this repository is © Jane Rose Ferdinant, licensed CC BY-NC-SA 4.0 (see `LICENSE`). The components below are third-party material and keep their own licenses.
+Original work in this repository is © Jane Rose Ferdinant, licensed CC BY-NC-ND 4.0 (see `LICENSE`). The components below are third-party material and keep their own licenses.
 
 ## SMS Spam Collection (`spam.csv`)
 
