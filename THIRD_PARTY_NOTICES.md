@@ -26,7 +26,7 @@ Almeida, T. A., Gómez Hidalgo, J. M. and Yamakami, A. (2011). Contributions to 
 
 Şahin, E., Aydos, M. and Orhan, F. (2018). Spam/Ham E-Mail Classification using Machine Learning Methods based on Bag of Words Technique. 2018 26th Signal Processing and Communications Applications Conference (SIU), pp. 1-4. https://doi.org/10.1109/SIU.2018.8404347
 
-The PDF `archive/spam-ham.pdf` in this repository is that paper. It is copyrighted by IEEE and by its authors and is not covered by this repository's license. It is kept in `archive/` for reference only and is a candidate for removal by the owner; cite it by DOI.
+The paper is not included in this repository (a copy that was kept in `archive/` was removed on 2026-10-23 because it is copyrighted by IEEE and its authors). Cite it by DOI.
 
 ## Libraries
 

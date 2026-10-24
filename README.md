@@ -182,7 +182,7 @@ docs/                     GitHub Pages site (demo): index.html, predict.mjs and 
                           parity.test.mjs and svm.test.mjs, model.json, model-svm.json, fixtures.json, fixtures-analyzer.json
 docs/runs/                dated run logs (2026-10-13 re-run; 2026-10-14 comparison, error analysis, results.json)
 docs/figures/             precision-recall and model-comparison figures
-archive/                  unrelated legacy site files (17 images, stylesheet, IEEE paper, Pages workflow template)
+archive/                  unrelated legacy site files (10 images, stylesheet, Pages workflow template)
 pyproject.toml            package metadata, pytest and ruff settings
 requirements.txt          pinned versions from the verified runs
 THIRD_PARTY_NOTICES.md    dataset and third-party attributions
